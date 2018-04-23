@@ -17,7 +17,7 @@ void setup() {
   
   particles = new ArrayList();
   
-  for (int i = 0; i < 18; i+=6) {
+  for (int i = 0; i < 18; i+=1) {
     jsonPCs.add(new JSONPointCloud("02.json", i, particles, colors));
   }
   

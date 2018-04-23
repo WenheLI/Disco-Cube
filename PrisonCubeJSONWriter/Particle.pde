@@ -11,6 +11,7 @@ class Particle {
   Particle(PVector pos_, PVector vel_, color clr_, int lifeSpan_, int size_) {
     pos = pos_;
     vel = vel_;
+    vel.add(blackHolePos.copy().sub(pos).normalize().mult(blackHoleSpeed));
 
     clr = clr_;
     lifeSpan = lifeSpan_;
@@ -18,7 +19,7 @@ class Particle {
   }
 
   void update() {
-    pos.add(vel.copy());
+    pos.add(vel.copy().add(blackHolePos.copy().sub(pos).normalize().mult(blackHoleSpeed)));
     life++;
     isDead = (life > lifeSpan);
   }
@@ -27,15 +28,13 @@ class Particle {
     if (displayPoint) displayPoint();
     else displayBox();
   }
-
   void displayPoint() {
-    //pushStyle();
-    stroke(clr);
-    //strokeWeight(size);
+    pushStyle();
+    stroke(clr, map(life, 0, lifeSpan, 255, 0));
+    strokeWeight(size);
     point(pos.x, pos.y, pos.z);
-    //popStyle();
+    popStyle();
   }
-
   void displayBox() {
     pushStyle();
     pushMatrix();

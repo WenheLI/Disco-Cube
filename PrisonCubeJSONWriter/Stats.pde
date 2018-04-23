@@ -1,27 +1,29 @@
 PVector sumPoint = new PVector(0, 0, 0);
 float numOfPoints;
 PVector closestPoint;
+PVector farthestPoint;
 PVector averagePoint = new PVector(0, 0, 0);
 
 void resetStats() {
   sumPoint.set(0, 0, 0);
   closestPoint = new PVector(0, 0, -1000);
+  farthestPoint = new PVector(0, 0, 1000);
   numOfPoints = 0;
 }
 
 void processStats() {
   if (numOfPoints!=0) {
-    averagePoint = sumPoint.div(numOfPoints);
+    //averagePoint = sumPoint.div(numOfPoints);
 
-    if (displayStats) {
-      drawFrameAtDepth(averagePoint.z);
-      drawBoxAtPos(averagePoint, color(0, 255, 0));
-      drawBoxAtPos(closestPoint, color(255, 0, 0));
-    }
-    if (displayClosestPoint) {
-      PVector vel = new PVector(directionX, -directionY, directionZ);
-      particles.add(new Particle(closestPoint, vel, color(random(255), random(255), random(255)), 10, (int)random(10, 30)));
-    }
+    //if (displayStats) {
+    //  drawFrameAtDepth(averagePoint.z);
+    //  drawBoxAtPos(averagePoint, color(0, 255, 0));
+    //  drawBoxAtPos(closestPoint, color(255, 0, 0));
+    //}
+    //if (displayClosestPoint) {
+    //PVector vel = new PVector(directionX, -directionY, directionZ);
+    //particles.add(new Particle(closestPoint, vel, color(random(255), random(255), random(255)), 10, (int)random(10, 30)));
+    //}
   }
 }
 

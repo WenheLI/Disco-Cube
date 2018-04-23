@@ -17,6 +17,9 @@ int startPoint;
 JSONObject json;
 int jsonState = 0;
 
+int w;
+int h;
+
 void setup() {
   size(1000, 800, P3D);
   setupPeasyCam();
@@ -31,18 +34,20 @@ void setup() {
 
   depthImg = new PImage(kinect2.depthWidth, kinect2.depthHeight, ARGB);
   opencv = new OpenCV(this, depthImg);
-  
+
   json = new JSONObject();
+  
+  w = kinect2.depthWidth;
+  h = kinect2.depthHeight;
+  resetStats();
 }
 
 void draw() {
   background(0);
 
   int[] rawDepth = kinect2.getRawDepth();
-  int w = kinect2.depthWidth;
-  int h = kinect2.depthHeight;
 
-  resetStats();
+  
 
   if (registeredColor) {
     colorImg = kinect2.getRegisteredImage();
@@ -80,6 +85,7 @@ void draw() {
 
       //stats
       if (pZ>closestPoint.z) closestPoint.set(pX, pY, pZ);
+      if (pZ < farthestPoint.z) farthestPoint.z = pZ;
       sumPoint.add(pX, pY, pZ);
       numOfPoints++;
 
@@ -149,11 +155,12 @@ void keyPressed() {
 
 void StartSavePoint(JSONObject json, ArrayList<PVector> pointsTemp, int keyValue) {
   JSONArray points = new JSONArray();
+  resetStats();
   for (int i = 0; i < pointsTemp.size(); i++) {
     int j = i * 3;
-    points.setFloat(j, pointsTemp.get(i).x);
-    points.setFloat(j+1, pointsTemp.get(i).y);
-    points.setFloat(j+2, pointsTemp.get(i).z);
+    points.setInt(j, floor(pointsTemp.get(i).x));
+    points.setInt(j+1, floor(pointsTemp.get(i).y));
+    points.setInt(j+2, floor(pointsTemp.get(i).z));
   }
 
   json.setJSONArray(keyValue + "", points);
@@ -161,5 +168,20 @@ void StartSavePoint(JSONObject json, ArrayList<PVector> pointsTemp, int keyValue
 
 void stopJson(JSONObject json, int start) {
   json.setInt("length", start + 1);
+  JSONArray xs = new JSONArray();
+  xs.setInt(0, -w/2);
+  xs.setInt(1, w/2);
+  
+  JSONArray ys = new JSONArray();
+  ys.setInt(0, -h/2);
+  ys.setInt(1, h/2);
+  
+  JSONArray zs = new JSONArray();
+  ys.setInt(0, floor(farthestPoint.z));
+  ys.setInt(1, floor(closestPoint.z));
+  
+  json.setJSONArray("rangeX", xs);
+  json.setJSONArray("rangeY", ys);
+  json.setJSONArray("rangeZ", zs);
   saveJSONObject(json, "data/data.json");
 }

@@ -12,8 +12,7 @@ int resolution;
 boolean displayPoint;
 
 Slider2D offsetSlider2D;
-float offsetX = 0;
-float offsetZ = -500;
+float rotationX, rotationY;
 
 int lifeSpan;
 int particleSize;
@@ -36,7 +35,7 @@ void setupGui() {
   cp5 = new ControlP5( this );
 
   cp5.addSlider("resolution")
-    .setPosition(startX, startY+spacing*3)
+    .setPosition(startX, startY+spacing*3)    
     .setSize(sliderW, sliderH)
     .setRange(1, 10)
     .setValue(10)
@@ -49,10 +48,10 @@ void setupGui() {
     ;
 
 
-  offsetSlider2D = cp5.addSlider2D("offset")
+  offsetSlider2D = cp5.addSlider2D("rotationXY")
     .setPosition(startX, startY+spacing*8)
     .setSize(sliderW, sliderW)
-    .setMinMax(-1000, -1000, 1000, 1000)
+    .setMinMax(-PI/2, -PI/2, PI/2, PI/2)
     .setValue(0, 0)
     ;
 
@@ -78,7 +77,7 @@ void setupGui() {
     .setRange(1, 10)
     .setValue(2)
     ;
- 
+
 
   directionSlider2D = cp5.addSlider2D("wind")
     .setPosition(startX, startY+spacing*32)
@@ -98,9 +97,9 @@ void setupGui() {
 }
 
 void drawGui() {
- 
-  offsetX = offsetSlider2D.getArrayValue()[0];
-  offsetZ = offsetSlider2D.getArrayValue()[1];
+
+  rotationY = -offsetSlider2D.getArrayValue()[0];
+  rotationX = -offsetSlider2D.getArrayValue()[1];
   directionX = directionSlider2D.getArrayValue()[0];
   directionZ = directionSlider2D.getArrayValue()[1];
 

@@ -1,8 +1,10 @@
 ArrayList<JSONPointCloud> jsonPCs;
-ArrayList<Particle> particles;
 color[] colors = {#ff00c1, #9600ff, #4900ff, #00b8ff, #00fff9};
 
-int cols, rows, cellWidth, cellHeight;
+import codeanticode.syphon.*;
+
+SyphonServer server;
+int cols, rows, cellWidth, cellHeight, cellDepth;
 
 void setup() {
   size(1200, 600, P3D);
@@ -10,17 +12,17 @@ void setup() {
   rows = 3;
   cellWidth = width/cols;
   cellHeight = height/rows;
+  cellDepth = cellWidth;
 
   ortho();
   setupGui();
   jsonPCs = new ArrayList();
-  
-  particles = new ArrayList();
-  
+
+
   for (int i = 0; i < 18; i+=1) {
-    jsonPCs.add(new JSONPointCloud("02.json", i, particles, colors));
+    jsonPCs.add(new JSONPointCloud((i % 5) + ".json", i, colors));
   }
-  
+  server = new SyphonServer(this, "Processing Syphon");
 }
 
 void draw() {
@@ -29,25 +31,14 @@ void draw() {
   for (JSONPointCloud jsonPC : jsonPCs) {
     //jsonPC.setVelocity(nextVel);
     jsonPC.updateFrame();
-    jsonPC.addFrameParticle();
+    jsonPC.addFrameParticles();
+    jsonPC.drawParticles();
   }
 
-  drawParticles();
+  server.sendScreen();
   if (guiToggle) drawGui();
 }
 
-void drawParticles() {
-  strokeWeight(particleSize);
-  for (int i = 0; i < particles.size(); i++) {
-    Particle p = particles.get(i);
-    p.display();
-    p.update();
-    if (p.isDead) {
-      particles.remove(p);
-      i--;
-    }
-  }
-}
 
 void keyPressed() {
   if (key == ' ') guiToggle = !guiToggle;

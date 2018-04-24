@@ -12,6 +12,7 @@ PVector blackHolePos;
 
 ArrayList<Particle> particles;
 
+int count = 0;
 
 int startPoint;
 JSONObject json;
@@ -177,11 +178,13 @@ void stopJson(JSONObject json, int start) {
   ys.setInt(1, h/2);
   
   JSONArray zs = new JSONArray();
-  ys.setInt(0, floor(farthestPoint.z));
-  ys.setInt(1, floor(closestPoint.z));
+  println(farthestPoint, closestPoint);
+  zs.setInt(0, floor(farthestPoint.z));
+  zs.setInt(1, floor(closestPoint.z));
   
   json.setJSONArray("rangeX", xs);
   json.setJSONArray("rangeY", ys);
   json.setJSONArray("rangeZ", zs);
-  saveJSONObject(json, "data/data.json");
+  saveJSONObject(json, "data/" + count + ".json");
+  count ++;
 }

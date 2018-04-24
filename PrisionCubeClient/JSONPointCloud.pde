@@ -11,7 +11,7 @@ class JSONPointCloud {
 
 
   private color[] colorPalette;
-  private PVector vel, offset;
+  private PVector vel, offset, rotation;
 
   JSONPointCloud(String address, int cellIndex, color[] colorPalette) {
     this.address = address;
@@ -30,6 +30,7 @@ class JSONPointCloud {
     this.colorPalette = colorPalette;
     this.vel = new PVector(0, 0, 0);
     this.offset = new PVector(0, 0, 0);
+    this.rotation = new PVector(0, 0, 0);
   }
 
   PVector getVel() {
@@ -59,8 +60,9 @@ class JSONPointCloud {
   void drawParticles() {
     pushMatrix();
     translate(colIndex*cellWidth + cellWidth/2, rowIndex*cellHeight + cellHeight/2, -cellDepth/2);
-    rotateX(rotationX);
-    rotateY(rotationY);
+    rotateX(rotation.x);
+    rotateY(rotation.y);
+    rotateZ(rotation.z); 
 
     noFill();
     //stroke(colorPalette[2]);
@@ -78,12 +80,16 @@ class JSONPointCloud {
     }
     popMatrix();
   }
+  
 
   void setOffset(PVector offset) {
     this.offset.set(offset);
   }
   void setVel(PVector vel) {
     this.vel.set(vel);
+  }
+  void setRotation(PVector rotation) {
+    this.rotation.set(rotation);
   }
   void setColorPalette(color[] colorPalette) {
     this.colorPalette = colorPalette;

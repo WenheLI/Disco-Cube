@@ -30,7 +30,7 @@ class Particle {
 
   void displayPoint() {
     //pushStyle();
-    stroke(clr,map(life, 0, lifeSpan, 255, 0));
+    stroke(clr,map(life, 0, lifeSpan, 255, 125));
     //strokeWeight(size);
     point(pos.x, pos.y, pos.z);
     //popStyle();

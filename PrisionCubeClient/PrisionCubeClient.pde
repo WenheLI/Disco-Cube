@@ -54,7 +54,6 @@ void keyPressed() {
     PVector[] pvs = {new PVector(0, 10, 0), ZERO};
     animator.setLerpFactorVel(.1).setTargetVel(pvs);
   }
-
   if (keyCode == LEFT) {
     PVector[] pvs = { new PVector(-10, 0, 0), ZERO};
     animator.setLerpFactorVel(.1).setTargetVel(pvs);
@@ -81,7 +80,11 @@ void keyPressed() {
     PVector[] pvs = {new PVector(50, 0, 0), ZERO};
     animator.setLerpFactorOffset(.1).setTargetOffset(pvs);
   }
-  
+  if (key == 'q') {
+    PVector[] pvs = {new PVector(random(100)-50, random(100)-50, random(100)-50), ZERO, new PVector(random(100)-50, random(100)-50, random(100)-50), ZERO, new PVector(random(100)-50, random(100)-50, random(100)-50), ZERO, new PVector(random(100)-50, random(100)-50, random(100)-50), ZERO, new PVector(random(100)-50, random(100)-50, random(100)-50), ZERO};
+    animator.setLerpFactorOffset(.6).setTargetOffset(pvs);
+  }
+
   //test rotation
   if (key == 'i') {
     PVector[] pvs = {new PVector(radians(60), 0, 0), ZERO};
@@ -100,7 +103,7 @@ void keyPressed() {
     animator.setLerpFactorRotation(.1).setTargetRotation(pvs);
   }
   if (key == 'p') {
-    PVector[] pvs = {new PVector(random(40)-20,random(40)-20,random(40)-20), ZERO};
+    PVector[] pvs = {new PVector(random(40)-20, random(40)-20, random(40)-20), ZERO};
     animator.setLerpFactorRotation(.1).setTargetRotation(pvs);
   }
 

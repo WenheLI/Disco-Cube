@@ -33,23 +33,22 @@ class JSONPointCloud {
   }
 
   void updateFrame() {
-    pointsInFrame.clear();
-    int[] currentArray = json.getJSONArray(""+currentFrame).getIntArray();
+    this.pointsInFrame.clear();
+    int[] currentArray = json.getJSONArray(""+this.currentFrame).getIntArray();
     for (int i = floor(random(resolution))*3; i < currentArray.length; i+=3*((resolution)+floor(random(resolution)))) {
       float x = map(currentArray[i], rangeX[0], rangeX[1], -cellWidth/2*0.9, cellWidth/2*0.9);
       float y = map(currentArray[i+1], rangeY[0], rangeY[1], -cellHeight/2*0.9, cellHeight/2*0.9);
       float z = map(currentArray[i+2], rangeZ[0], rangeZ[1], -cellDepth/6, cellDepth/6);
       PVector point = new PVector(x, y, z);
-      pointsInFrame.add(point);
+      this.pointsInFrame.add(point);
     }
-    if (play) currentFrame = (currentFrame + playBackSpeed) % jsonLength;
+    if (play) this.currentFrame = (this.currentFrame + playBackSpeed) % this.jsonLength;
   }
 
   void addFrameParticles() {
     for (PVector p : pointsInFrame) {
-      color clr = colorPalette[floor(random(colorPalette.length))];
-      vel.set(directionX, directionY, directionZ);
-      particles.add(new Particle(p, vel, clr, lifeSpan, particleSize));
+      color clr = this.colorPalette[floor(random(colorPalette.length))];
+      this.particles.add(new Particle(p, vel, clr, lifeSpan, particleSize));
     }
   }
 
@@ -64,22 +63,29 @@ class JSONPointCloud {
     strokeWeight(2);
     box(cellWidth*0.9);
     strokeWeight(particleSize);
-    for (int i = 0; i < particles.size(); i++) {
-      Particle p = particles.get(i);
+    for (int i = 0; i < this.particles.size(); i++) {
+      Particle p = this.particles.get(i);
       p.display();
       p.update();
       if (p.isDead) {
-        particles.remove(p);
+        this.particles.remove(p);
         i--;
       }
     }
     popMatrix();
   }
-
+  
+  void setPosOffset(PVector offset){
+    for (PVector p : pointsInFrame) {
+      println(p);
+      p = p.add(offset);
+      println(p);
+    }
+  }
   void setVelocity(PVector vel_) {
-    vel.set(vel_);
+    this.vel.set(vel_);
   }
   void setColorPalette(color[] colorPalette_) {
-    colorPalette = colorPalette_;
+    this.colorPalette = colorPalette_;
   }
 }

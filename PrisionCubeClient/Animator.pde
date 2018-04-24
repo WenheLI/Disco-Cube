@@ -1,62 +1,85 @@
 class Animator {
   private ArrayList<JSONPointCloud> jsonPCs;
 
-  private PVector offset;
-  private PVector[] targetVel;
-  private color[] colorPalette = {#ff00c1, #9600ff, #4900ff, #00b8ff, #00fff9};
-  private float duration;
+  private PVector[] targetOffset;
+  private int currentTargetOffset;
+  private PVector nextOffset;
+  private float offsetLerpFactor;
 
-  private int currentTarget;
+  private PVector[] targetVel;
+  private int currentTargetVel;
+  private PVector nextVel;
+  private float velLerpFactor;
+
+  private color[] colorPalette = {#ff00c1, #9600ff, #4900ff, #00b8ff, #00fff9};
+
 
   Animator(ArrayList<JSONPointCloud> jsonPCs) {
     this.jsonPCs = jsonPCs;
-    this.duration = 1f;
-    this.currentTarget = 0;
-    this.offset = new PVector(0, 0, 0);
+    this.velLerpFactor = 1f;
+    this.offsetLerpFactor = 1f;
+    this.currentTargetVel = 0;
+    this.currentTargetOffset = 0;
+    this.nextOffset = new PVector(0, 0, 0);
+    this.nextVel = new PVector(0, 0, 0);
   }
 
-  Animator setDuration(float duration) {
-    this.duration = duration;
+  Animator setOffsetLerpFactor(float lerpFactor) {
+    this.offsetLerpFactor = lerpFactor;
     return this;
   }
 
-  Animator setTargetVels(PVector[] target) {
+  Animator setVelLerpFactor(float lerpFactor) {
+    this.velLerpFactor = lerpFactor;
+    return this;
+  }
+
+  Animator setTargetOffset(PVector[] target) {
+    this.targetOffset = target;
+    this.currentTargetOffset = 0;
+    return this;
+  }
+
+  Animator setTargetVel(PVector[] target) {
     this.targetVel = target;
-    this.currentTarget = 0;
+    this.currentTargetVel = 0;
     return this;
   }
 
-  Animator setcolorPalette(color[] colorPalette) {
+  Animator setColorPalette(color[] colorPalette) {
     if (colorPalette != null) this.colorPalette = colorPalette;
     return this;
   }
-  
-  Animator setOffset(PVector offset) {
-    if (colorPalette != null) this.offset = offset;
-    return this;
+
+  void updateNextOffset() {
+    if (this.targetOffset != null && this.targetOffset.length > this.currentTargetOffset) {
+      PVector prevOffset = this.jsonPCs.get(0).getOffset();
+      PVector calOffset = PVector.lerp(prevOffset, this.targetOffset[this.currentTargetOffset], this.offsetLerpFactor);
+      //println(calOffset.dist(prevOffset));
+      if (calOffset.dist(prevOffset) < .01) this.currentTargetOffset += 1;
+      this.nextOffset =  calOffset;
+    } else this.nextOffset.set(0, 0, 0);
   }
 
-  PVector applyForce() {
-    if (this.targetVel != null && this.targetVel.length > this.currentTarget) {
-      PVector pvel = this.jsonPCs.get(0).vel;
-      PVector calVel = PVector.lerp(pvel, this.targetVel[this.currentTarget], this.duration);
-      println(calVel.dist(pvel));
-      if (calVel.dist(pvel) < .01) this.currentTarget += 1;
-      return calVel;
-    }
-    return new PVector(0, 0, 0);
+  void updateNextVel() {
+    if (this.targetVel != null && this.targetVel.length > this.currentTargetVel) {
+      PVector prevVel = this.jsonPCs.get(0).getVel();
+      PVector calVel = PVector.lerp(prevVel, this.targetVel[this.currentTargetVel], this.velLerpFactor);
+      //println(calVel.dist(prevVel));
+      if (calVel.dist(prevVel) < .01) this.currentTargetVel += 1;
+      //println(prevVel, calVel, frameCount);
+      this.nextVel = calVel;
+    } else this.nextVel.set(0, 0, 0);
   }
 
-  void changeOffset() {
-    println(this.offset);
-    for (JSONPointCloud pc : jsonPCs) {
-      pc.setPosOffset(this.offset);
-    }
+  void updateNext() {
+    this.updateNextOffset();
+    this.updateNextVel();
   }
 
-  void changeColorAnima() {
-    for (JSONPointCloud pc : jsonPCs) {
-      pc.setColorPalette(this.colorPalette);
-    }
+  void applyAmimationTo(JSONPointCloud jsonPC) {
+    jsonPC.setOffset(this.nextOffset);
+    jsonPC.setVel(this.nextVel);
+    jsonPC.setColorPalette(this.colorPalette);
   }
 } 

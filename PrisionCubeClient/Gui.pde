@@ -5,7 +5,6 @@ ControlP5 cp5;
 
 boolean guiToggle;
 
-boolean play;
 int playBackSpeed;
 int resolution;
 
@@ -43,8 +42,8 @@ void setupGui() {
   cp5.addSlider("playBackSpeed")
     .setPosition(startX, startY+spacing*4)
     .setSize(sliderW, sliderH)
-    .setRange(1, 5)
-    .setValue(1)
+    .setRange(0, 5)
+    .setValue(0)
     ;
 
 
@@ -55,11 +54,6 @@ void setupGui() {
     .setValue(0, 0)
     ;
 
-  cp5.addToggle("play")
-    .setPosition(startX, startY+spacing*15)
-    .setSize(sliderW, sliderH)
-    .setValue(false)
-    ;
   cp5.addToggle("displayPoint")
     .setPosition(startX, startY+spacing*17)
     .setSize(sliderW, sliderH)

@@ -9,18 +9,17 @@ int cols, rows, cellWidth, cellHeight, cellDepth;
 
 void setup() {
   size(1200, 600, P3D);
+  ortho();
+  setupGui();
   cols = 6;
   rows = 3;
   cellWidth = width/cols;
   cellHeight = height/rows;
   cellDepth = cellWidth;
 
-  ortho();
-  setupGui();
   jsonPCs = new ArrayList();
 
-
-  for (int i = 0; i < 18; i+=1) {
+  for (int i = 9; i < 18; i+=18) {
     jsonPCs.add(new JSONPointCloud((i % 5) + ".json", i, colors));
   }
 
@@ -31,11 +30,10 @@ void setup() {
 
 void draw() {
   background(0);
-  PVector nextVel = animator.applyForce();
+  animator.updateNext();
   for (JSONPointCloud jsonPC : jsonPCs) {
-    jsonPC.setVelocity(nextVel);
+    animator.applyAmimationTo(jsonPC);
     jsonPC.updateFrame();
-    jsonPC.addFrameParticles();
     jsonPC.drawParticles();
   }
 
@@ -45,49 +43,51 @@ void draw() {
 
 
 void keyPressed() {
+  
   if (key == ' ') guiToggle = !guiToggle;
+  
+  PVector ZERO = new PVector(0, 0, 0);
 
   if (keyCode == UP) {
-    PVector[] pvs = {new PVector(0, 0, 0),new PVector(0, -10, 0), new PVector(0, 0, 0)};
-    animator.setDuration(.1).setTargetVels(pvs);
+    PVector[] pvs = {ZERO, new PVector(0, -10, 0), ZERO};
+    animator.setVelLerpFactor(.1).setTargetVel(pvs);
+  }
+  if (keyCode == DOWN) {
+    PVector[] pvs = {ZERO, new PVector(0, 10, 0), ZERO};
+    animator.setVelLerpFactor(.1).setTargetVel(pvs);
   }
 
-  if (keyCode == DOWN) {
-    PVector[] pvs = {new PVector(0, 10, 0)};
-    animator.setDuration(.1).setTargetVels(pvs);
-  }
-  
   if (keyCode == LEFT) {
-    PVector[] pvs = {new PVector(10, 0, 0)};
-    animator.setDuration(.1).setTargetVels(pvs);
+    PVector[] pvs = {ZERO, new PVector(-10, 0, 0), ZERO};
+    animator.setVelLerpFactor(.1).setTargetVel(pvs);
   }
   if (keyCode == RIGHT) {
-    PVector[] pvs = {new PVector(-10, 0, 0)};
-    animator.setDuration(.1).setTargetVels(pvs);
+    PVector[] pvs = {ZERO, new PVector(10, 0, 0), ZERO};
+    animator.setVelLerpFactor(.1).setTargetVel(pvs);
   }
   
   if (key == 'w') {
-    println('w');
-     animator.setOffset(new PVector(0, 100, 0)).changeOffset(); 
+    PVector[] pvs = {ZERO, new PVector(0, -50, 0), ZERO};
+    animator.setOffsetLerpFactor(.1).setTargetOffset(pvs);
   }
-  
   if (key == 's') {
-     animator.setOffset(new PVector(0, -1, 0)).changeOffset(); 
+    PVector[] pvs = {ZERO, new PVector(0, 50, 0), ZERO};
+    animator.setOffsetLerpFactor(.1).setTargetOffset(pvs);
   }
-  
-  if (key == 'd') {
-     animator.setOffset(new PVector(1, 0, 0)).changeOffset(); 
-  }
-  
   if (key == 'a') {
-     animator.setOffset(new PVector(-1, 0, 0)).changeOffset(); 
+    PVector[] pvs = {ZERO, new PVector(-50, 0, 0), ZERO};
+    animator.setOffsetLerpFactor(.1).setTargetOffset(pvs);
   }
-  
+  if (key == 'd') {
+    PVector[] pvs = {ZERO, new PVector(50, 0, 0), ZERO};
+    animator.setOffsetLerpFactor(.1).setTargetOffset(pvs);
+  }
+
   if (key == 'c') {
     color[] newColor = new color[5];
     for (int i = 0; i < 5; i++) {
-       newColor[i] = color(random(255), random(255), random(255)); 
+      newColor[i] = color(random(255), random(255), random(255));
     }
-     animator.setcolorPalette(newColor).changeColorAnima();
+    animator.setColorPalette(newColor);
   }
 }

@@ -1,63 +1,67 @@
 class JSONPointCloud {
-  ArrayList<PVector> pointsInFrame;
-  ArrayList<Particle> particles;
-  String address;
-  int jsonLength;
-  JSONObject json;
+  private ArrayList<Particle> particles;
 
-  color[] colorPalette;
-  int currentFrame;
-  int [] rangeX, rangeY, rangeZ;
+  private String address;
+  private int jsonLength;
+  private JSONObject json;
+  private int [] rangeX, rangeY, rangeZ;
+  private int currentFrame;
 
-  PVector vel;
+  private int cellIndex, colIndex, rowIndex;
 
-  int cellIndex, colIndex, rowIndex;
 
-  JSONPointCloud(String address_, int cellIndex_, color[] colorPalette_) {
-    address = address_;
-    json = loadJSONObject(address);
-    jsonLength = json.getInt("length");
-    pointsInFrame = new ArrayList();
-    currentFrame = 0;
-    rangeX = json.getJSONArray("rangeX").getIntArray();
-    rangeY = json.getJSONArray("rangeY").getIntArray();
-    rangeZ = json.getJSONArray("rangeZ").getIntArray();
+  private color[] colorPalette;
+  private PVector vel, offset;
 
-    cellIndex = cellIndex_;
-    colIndex = cellIndex % cols;
-    rowIndex = floor(cellIndex / cols);
+  JSONPointCloud(String address, int cellIndex, color[] colorPalette) {
+    this.address = address;
+    this.json = loadJSONObject(address);
+    this.jsonLength = json.getInt("length");
+    this.currentFrame = 0;
+    this.rangeX = json.getJSONArray("rangeX").getIntArray();
+    this.rangeY = json.getJSONArray("rangeY").getIntArray();
+    this.rangeZ = json.getJSONArray("rangeZ").getIntArray();
 
-    particles = new ArrayList();
-    colorPalette = colorPalette_;
-    vel = new PVector(0, 0, 0);
+    this.cellIndex = cellIndex;
+    this.colIndex = cellIndex % cols;
+    this.rowIndex = floor(cellIndex / cols);
+
+    this.particles = new ArrayList();
+    this.colorPalette = colorPalette;
+    this.vel = new PVector(0, 0, 0);
+    this.offset = new PVector(0, 0, 0);
+  }
+
+  PVector getVel() {
+    return this.vel;
+  }
+  PVector getOffset() {
+    return this.offset;
   }
 
   void updateFrame() {
-    this.pointsInFrame.clear();
     int[] currentArray = json.getJSONArray(""+this.currentFrame).getIntArray();
     for (int i = floor(random(resolution))*3; i < currentArray.length; i+=3*((resolution)+floor(random(resolution)))) {
       float x = map(currentArray[i], rangeX[0], rangeX[1], -cellWidth/2*0.9, cellWidth/2*0.9);
       float y = map(currentArray[i+1], rangeY[0], rangeY[1], -cellHeight/2*0.9, cellHeight/2*0.9);
       float z = map(currentArray[i+2], rangeZ[0], rangeZ[1], -cellDepth/6, cellDepth/6);
-      PVector point = new PVector(x, y, z);
-      this.pointsInFrame.add(point);
+      this.addParticle(new PVector(x, y, z));
     }
-    if (play) this.currentFrame = (this.currentFrame + playBackSpeed) % this.jsonLength;
+    this.currentFrame = (this.currentFrame + playBackSpeed) % this.jsonLength;
   }
 
-  void addFrameParticles() {
-    for (PVector p : pointsInFrame) {
-      color clr = this.colorPalette[floor(random(colorPalette.length))];
-      this.particles.add(new Particle(p, vel, clr, lifeSpan, particleSize));
-    }
+  private void addParticle(PVector point) {
+    color clr = this.colorPalette[floor(random(this.colorPalette.length))];
+    point.add(this.offset);
+    this.particles.add(new Particle(point, this.vel, clr, lifeSpan, particleSize));
   }
 
   void drawParticles() {
     pushMatrix();
     translate(colIndex*cellWidth + cellWidth/2, rowIndex*cellHeight + cellHeight/2, -cellDepth/2);
     rotateX(rotationX);
-    rotateY(radians(frameCount));
-    
+    rotateY(rotationY);
+
     noFill();
     //stroke(colorPalette[2]);
     strokeWeight(2);
@@ -74,18 +78,14 @@ class JSONPointCloud {
     }
     popMatrix();
   }
-  
-  void setPosOffset(PVector offset){
-    for (PVector p : pointsInFrame) {
-      println(p);
-      p = p.add(offset);
-      println(p);
-    }
+
+  void setOffset(PVector offset) {
+    this.offset.set(offset);
   }
-  void setVelocity(PVector vel_) {
-    this.vel.set(vel_);
+  void setVel(PVector vel) {
+    this.vel.set(vel);
   }
-  void setColorPalette(color[] colorPalette_) {
-    this.colorPalette = colorPalette_;
+  void setColorPalette(color[] colorPalette) {
+    this.colorPalette = colorPalette;
   }
 }

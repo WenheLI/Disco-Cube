@@ -3,7 +3,6 @@ Animator animator;
 color[] colors = {#ff00c1, #9600ff, #4900ff, #00b8ff, #00fff9};
 
 import codeanticode.syphon.*;
-
 SyphonServer server;
 int cols, rows, cellWidth, cellHeight, cellDepth;
 
@@ -41,69 +40,67 @@ void draw() {
   if (guiToggle) drawGui();
 }
 
+PVector ZERO = new PVector(0, 0, 0);
 
 void keyPressed() {
-
   if (key == ' ') guiToggle = !guiToggle;
-
-  PVector ZERO = new PVector(0, 0, 0);
 
   //test velocity
   if (keyCode == UP) {
-    PVector[] pvs = {ZERO, new PVector(0, -10, 0), ZERO};
+    PVector[] pvs = {new PVector(0, -10, 0), ZERO};
     animator.setLerpFactorVel(.1).setTargetVel(pvs);
   }
   if (keyCode == DOWN) {
-    PVector[] pvs = {ZERO, new PVector(0, 10, 0), ZERO};
+    PVector[] pvs = {new PVector(0, 10, 0), ZERO};
     animator.setLerpFactorVel(.1).setTargetVel(pvs);
   }
 
   if (keyCode == LEFT) {
-    PVector[] pvs = {ZERO, new PVector(-10, 0, 0), ZERO};
+    PVector[] pvs = { new PVector(-10, 0, 0), ZERO};
     animator.setLerpFactorVel(.1).setTargetVel(pvs);
   }
   if (keyCode == RIGHT) {
-    PVector[] pvs = {ZERO, new PVector(10, 0, 0), ZERO};
+    PVector[] pvs = {new PVector(10, 0, 0), ZERO};
     animator.setLerpFactorVel(.1).setTargetVel(pvs);
   }
 
   //test offset
   if (key == 'w') {
-    PVector[] pvs = {ZERO, new PVector(0, -50, 0), ZERO};
+    PVector[] pvs = {new PVector(0, -50, 0), ZERO};
     animator.setLerpFactorOffset(.1).setTargetOffset(pvs);
   }
   if (key == 's') {
-    PVector[] pvs = {ZERO, new PVector(0, 50, 0), ZERO};
+    PVector[] pvs = {new PVector(0, 50, 0), ZERO};
     animator.setLerpFactorOffset(.1).setTargetOffset(pvs);
   }
   if (key == 'a') {
-    PVector[] pvs = {ZERO, new PVector(-50, 0, 0), ZERO};
+    PVector[] pvs = {new PVector(-50, 0, 0), ZERO};
     animator.setLerpFactorOffset(.1).setTargetOffset(pvs);
   }
   if (key == 'd') {
-    PVector[] pvs = {ZERO, new PVector(50, 0, 0), ZERO};
+    PVector[] pvs = {new PVector(50, 0, 0), ZERO};
     animator.setLerpFactorOffset(.1).setTargetOffset(pvs);
   }
   
   //test rotation
   if (key == 'i') {
-    PVector[] pvs = {ZERO, new PVector(radians(60), 0, 0), ZERO};
+    PVector[] pvs = {new PVector(radians(60), 0, 0), ZERO};
     animator.setLerpFactorRotation(.05).setTargetRotation(pvs);
   }
   if (key == 'k') {
-    PVector[] pvs = {ZERO, new PVector(-radians(60), 0, 0), ZERO};
+    PVector[] pvs = {new PVector(-radians(60), 0, 0), ZERO};
     animator.setLerpFactorRotation(.1).setTargetRotation(pvs);
   }
   if (key == 'j') {
-    PVector[] pvs = {ZERO, new PVector(0, -radians(60), 0), ZERO};
+    PVector[] pvs = {new PVector(0, -radians(60), 0), ZERO};
     animator.setLerpFactorRotation(.1).setTargetRotation(pvs);
   }
   if (key == 'l') {
-    PVector[] pvs = {ZERO, new PVector(0, radians(60), 0), ZERO};
+    PVector[] pvs = {new PVector(0, radians(60), 0), ZERO};
     animator.setLerpFactorRotation(.1).setTargetRotation(pvs);
   }
   if (key == 'p') {
-    PVector[] pvs = {ZERO, new PVector(random(40)-20,random(40)-20,random(40)-20), ZERO};
+    PVector[] pvs = {new PVector(random(40)-20,random(40)-20,random(40)-20), ZERO};
     animator.setLerpFactorRotation(.1).setTargetRotation(pvs);
   }
 

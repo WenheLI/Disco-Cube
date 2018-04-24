@@ -1,8 +1,6 @@
 class Animator {
   private ArrayList<JSONPointCloud> jsonPCs;
 
-  private int attitude;
-  private int force;
   private PVector offset;
   private PVector[] targetVel;
   private color[] colorPalette = {#ff00c1, #9600ff, #4900ff, #00b8ff, #00fff9};

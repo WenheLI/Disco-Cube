@@ -1,14 +1,20 @@
+import codeanticode.syphon.*;
+import oscP5.*;
+import netP5.*;
+
 ArrayList<JSONPointCloud> jsonPCs;
 Animator animator;
 color[] colors = {#ff00c1, #9600ff, #4900ff, #00b8ff, #00fff9};
 
-import codeanticode.syphon.*;
 SyphonServer server;
 int cols, rows, cellWidth, cellHeight, cellDepth;
 
+OscP5 oscP5;
+
 void setup() {
-  size(1800, 900 , P3D);
+  size(1800, 900, P3D);
   background(0);
+  oscP5 = new OscP5(this, 12001);
   //ortho();
   setupGui();
   cols = 6;
@@ -19,7 +25,7 @@ void setup() {
 
   jsonPCs = new ArrayList();
 
-  for (int i = 17; i < 18; i+=1) {
+  for (int i = 0; i < 18; i+=1) {
     jsonPCs.add(new JSONPointCloud((i % 5) + "new.json", i, colors));
   }
 
@@ -30,6 +36,8 @@ void setup() {
 
 void draw() {
   background(0);
+  if (mapping) background(255);
+
   animator.updateNext();
   for (JSONPointCloud jsonPC : jsonPCs) {
     animator.applyAmimationTo(jsonPC);
@@ -43,6 +51,29 @@ void draw() {
 
 PVector ZERO = new PVector(0, 0, 0);
 
+
+void oscEvent(OscMessage msg) {
+  print("### received an osc message.");
+  print(" addrpattern: "+msg.addrPattern());
+  println(" typetag: "+msg.typetag());
+
+  int flag = msg.get(0).intValue();
+  if (flag == 1) {
+    PVector[] pvs = { new PVector(-1, 0, 0), ZERO};
+    animator.setLerpFactorAcc(.1).setTargetAcc(pvs);
+  } else if (flag == 2) {
+    PVector[] pvs = {new PVector(1, 0, 0), ZERO};
+    animator.setLerpFactorAcc(.1).setTargetAcc(pvs);
+  } else if (flag == 3) {
+    PVector[] pvs = {new PVector(0, 1, 0), ZERO};
+    animator.setLerpFactorAcc(.1).setTargetAcc(pvs);
+  } else if (flag == 4) {
+    PVector[] pvs = {new PVector(0, -1, 0), ZERO};
+    animator.setLerpFactorAcc(.1).setTargetAcc(pvs);
+  }
+}
+
+
 void keyPressed() {
   if (key == ' ') guiToggle = !guiToggle;
 
@@ -50,7 +81,6 @@ void keyPressed() {
   if (keyCode == UP) {
     PVector[] pvs = {new PVector(0, -1, 0), ZERO};
     animator.setLerpFactorAcc(.1).setTargetAcc(pvs);
-    
   }
   if (keyCode == DOWN) {
     PVector[] pvs = {new PVector(0, 1, 0), ZERO};

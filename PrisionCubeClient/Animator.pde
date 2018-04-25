@@ -24,6 +24,10 @@ class Animator {
   private float lerpFactorRotation;
 
   private PVector rotationOffset; //now controled by GUI
+  
+  float xoff = 0.1;
+  float yoff = 0.213;
+  float step = 0.01;
 
   private color[] colorPalette = {#ff00c1, #9600ff, #4900ff, #00b8ff, #00fff9};
 
@@ -158,8 +162,11 @@ class Animator {
     this.updateNextVel();
     this.updateNextAcc();
     this.updateNextRotation();
-    this.rotationOffset.set(rotationX, -rotationY, 0);  //rotationX and rotationY are global variable controled by GUI
-  }
+    
+    this.rotationOffset.set(map(noise(xoff),0,1,-PI/3,PI/3), map(noise(yoff),0,1,-PI/3,PI/3), 0);  //rotationX and rotationY are global variable controled by GUI
+    xoff+=step;
+    yoff+=step;
+}
 
   void applyAmimationTo(JSONPointCloud jsonPC) {
     jsonPC.setOffset(this.nextOffset);

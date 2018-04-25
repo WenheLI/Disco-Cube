@@ -1,6 +1,11 @@
 import java.util.ArrayList;
 import KinectPV2.KJoint;
 import KinectPV2.*;
+import oscP5.*;
+import netP5.*;
+
+OscP5 oscP5;
+NetAddress myTarget;
 
 KinectPV2 kinect;
 PVector pHandLeftPos;
@@ -18,6 +23,9 @@ void setup() {
   kinect.enableSkeletonDepthMap(true);
 
   kinect.init();
+
+  oscP5 = new OscP5(this, 12000);
+  myTarget = new NetAddress("127.0.0.1", 12001);
 }
 
 void draw() {
@@ -54,22 +62,31 @@ void checkNull(KJoint[] joints) {
 
 void checkSignal(KJoint[] joints) {
   if (pHandLeftPos.dist(joints[KinectPV2.JointType_HandLeft].getPosition()) > 10) {
-    println("blowLeft") ;
+    OscMessage myMessage = new OscMessage("/test");
+    myMessage.add(1);
+    oscP5.send(myMessage, myTarget);
   }
   if (pHandRightPos.dist(joints[KinectPV2.JointType_HandRight].getPosition()) > 10) {
-    println("blowRight") ;
+    OscMessage myMessage = new OscMessage("/test");
+    myMessage.add(2);
+    oscP5.send(myMessage, myTarget);
   }
   if (pLegLeftPos.dist(joints[KinectPV2.JointType_KneeLeft].getPosition()) > 10) {
+    OscMessage myMessage = new OscMessage("/test");
+    myMessage.add(3);
+    oscP5.send(myMessage, myTarget);
     println("kneeLeft") ;
   }
   if (pLegRightPos.dist(joints[KinectPV2.JointType_KneeRight].getPosition()) > 10) {
+    OscMessage myMessage = new OscMessage("/test");
+    myMessage.add(4);
+    oscP5.send(myMessage, myTarget);
     println("kneeRight") ;
   }
   pHandLeftPos = joints[KinectPV2.JointType_HandLeft].getPosition().copy();
   pHandRightPos = joints[KinectPV2.JointType_HandRight].getPosition().copy();
   pLegLeftPos = joints[KinectPV2.JointType_KneeLeft].getPosition().copy();
   pLegRightPos = joints[KinectPV2.JointType_KneeRight].getPosition().copy();
-  
 }
 
 void drawBody(KJoint[] joints) {

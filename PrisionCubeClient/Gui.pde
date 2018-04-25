@@ -8,6 +8,7 @@ boolean guiToggle;
 int playBackSpeed;
 int resolution;
 
+boolean mapping;
 boolean displayPoint;
 
 Slider2D offsetSlider2D;
@@ -29,6 +30,12 @@ void setupGui() {
 
   cp5 = new ControlP5( this );
 
+
+  cp5.addToggle("mapping")
+    .setPosition(startX, startY+spacing*1)
+    .setSize(sliderW, sliderH)
+    .setValue(true)
+    ;
   cp5.addSlider("resolution")
     .setPosition(startX, startY+spacing*3)    
     .setSize(sliderW, sliderH)

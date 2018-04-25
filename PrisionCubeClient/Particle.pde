@@ -1,50 +1,52 @@
 class Particle {
-  PVector pos;
-  PVector vel;
-  color clr;
-  int size;
+  private PVector pos, vel, acc;
+  private color clr;
+  private int size;
 
-  int lifeSpan;
-  int life = 0;
-  boolean isDead;
+  private int lifeSpan, life = 0;
+  private boolean isDead;
 
-  Particle(PVector pos_, PVector vel_, color clr_, int lifeSpan_, int size_) {
-    pos = pos_;
-    vel = vel_;
-
-    clr = clr_;
-    lifeSpan = lifeSpan_;
-    size = size_;
+  Particle(PVector pos, PVector vel, PVector acc, color clr, int lifeSpan, int size) {
+    this.pos = pos;
+    this.vel = vel.copy();
+    this.acc = acc.copy();
+    this.clr = clr;
+    this.lifeSpan = lifeSpan;
+    this.life = 0;
+    this.size = size;
   }
 
   void update() {
-    pos.add(vel.copy());
-    life++;
-    isDead = (life > lifeSpan);
+    this.vel.add(this.acc);
+    //println(this.vel, this.acc);
+    this.pos.add(this.vel);
+    this.life++;
+    this.isDead = (this.life > this.lifeSpan);
+    
   }
 
   void display() {
-    if (displayPoint) displayPoint();
-    else displayBox();
+    if (displayPoint) this.displayPoint();
+    else this.displayBox();
   }
 
   void displayPoint() {
     //pushStyle();
-    stroke(clr,map(life, 0, lifeSpan, 255, 125));
+    stroke(this.clr,map(this.life, 0, this.lifeSpan, 255, 150));
     //strokeWeight(size);
-    point(pos.x, pos.y, pos.z);
+    point(this.pos.x, this.pos.y, this.pos.z);
     //popStyle();
   }
 
   void displayBox() {
     pushStyle();
     pushMatrix();
-    translate(pos.x, pos.y, pos.z);
+    translate(this.pos.x, this.pos.y, this.pos.z);
     rotateX(radians(frameCount)*2);
     rotateY(radians(frameCount)*2);
-    fill(clr, map(life, 0, lifeSpan, 255, 0));
+    fill(this.clr, map(this.life, 0, this.lifeSpan, 255, 150));
     noStroke();
-    box(map(life, 0, lifeSpan, size, 1));
+    box(map(this.life, 0, this.lifeSpan, this.size, 1));
     popStyle();
     popMatrix();
   }

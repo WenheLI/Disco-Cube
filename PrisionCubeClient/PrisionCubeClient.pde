@@ -19,7 +19,7 @@ void setup() {
 
   jsonPCs = new ArrayList();
 
-  for (int i = 0; i < 18; i+=1) {
+  for (int i = 17; i < 18; i+=1) {
     jsonPCs.add(new JSONPointCloud((i % 5) + "new.json", i, colors));
   }
 
@@ -48,20 +48,21 @@ void keyPressed() {
 
   //test velocity
   if (keyCode == UP) {
-    PVector[] pvs = {new PVector(0, -10, 0), ZERO};
-    animator.setLerpFactorVel(.1).setTargetVel(pvs);
+    PVector[] pvs = {new PVector(0, -1, 0), ZERO};
+    animator.setLerpFactorAcc(.1).setTargetAcc(pvs);
+    
   }
   if (keyCode == DOWN) {
-    PVector[] pvs = {new PVector(0, 10, 0), ZERO};
-    animator.setLerpFactorVel(.1).setTargetVel(pvs);
+    PVector[] pvs = {new PVector(0, 1, 0), ZERO};
+    animator.setLerpFactorAcc(.1).setTargetAcc(pvs);
   }
   if (keyCode == LEFT) {
-    PVector[] pvs = { new PVector(-10, 0, 0), ZERO};
-    animator.setLerpFactorVel(.1).setTargetVel(pvs);
+    PVector[] pvs = { new PVector(-1, 0, 0), ZERO};
+    animator.setLerpFactorAcc(.1).setTargetAcc(pvs);
   }
   if (keyCode == RIGHT) {
-    PVector[] pvs = {new PVector(10, 0, 0), ZERO};
-    animator.setLerpFactorVel(.1).setTargetVel(pvs);
+    PVector[] pvs = {new PVector(1, 0, 0), ZERO};
+    animator.setLerpFactorAcc(.1).setTargetAcc(pvs);
   }
 
   //test offset

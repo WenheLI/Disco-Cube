@@ -11,6 +11,12 @@ class Animator {
   private PVector nextVel;
   private float lerpFactorVel;
 
+  private PVector[] targetAcc;
+  private int currentTargetAcc;
+  private PVector prevAcc;
+  private PVector nextAcc;
+  private float lerpFactorAcc;
+
   private PVector[] targetRotation;
   private int currentTargetRotation;
   private PVector prevRotation;
@@ -23,16 +29,25 @@ class Animator {
 
 
   Animator() {
-    this.lerpFactorVel = 1f;
     this.lerpFactorOffset = 1f;
-    this.currentTargetVel = 0;
+    this.lerpFactorAcc = 1f;
+    this.lerpFactorVel = 1f;
+    this.lerpFactorRotation = 1f;
+    
     this.currentTargetOffset = 0;
+    this.currentTargetAcc = 0;
+    this.currentTargetVel = 0;
+    this.currentTargetRotation = 0;
+    
     this.nextOffset = new PVector(0, 0, 0);
     this.prevOffset = new PVector(0, 0, 0);
     this.nextVel = new PVector(0, 0, 0);
-    this.prevVel = new PVector(0, 0, 0); 
+    this.prevVel = new PVector(0, 0, 0);
+    this.nextAcc = new PVector(0, 0, 0);
+    this.prevAcc = new PVector(0, 0, 0); 
     this.nextRotation = new PVector(0, 0, 0);
     this.prevRotation = new PVector(0, 0, 0);
+    
     this.rotationOffset = new PVector(0, 0, 0);
   }
 
@@ -42,6 +57,10 @@ class Animator {
   }
   Animator setLerpFactorVel(float lerpFactor) {
     this.lerpFactorVel = lerpFactor;
+    return this;
+  }
+  Animator setLerpFactorAcc(float lerpFactor) {
+    this.lerpFactorAcc = lerpFactor;
     return this;
   }
   Animator setLerpFactorRotation(float lerpFactor) {
@@ -57,6 +76,11 @@ class Animator {
   Animator setTargetVel(PVector[] target) {
     this.targetVel = target;
     this.currentTargetVel = 0;
+    return this;
+  } 
+  Animator setTargetAcc(PVector[] target) {
+    this.targetAcc = target;
+    this.currentTargetAcc = 0;
     return this;
   } 
   Animator setTargetRotation(PVector[] target) {
@@ -91,6 +115,17 @@ class Animator {
       this.nextVel.set(0, 0, 0);
     }
   }
+  void updateNextAcc() {
+    if (this.targetAcc != null && this.targetAcc.length > this.currentTargetAcc) {
+      PVector calAcc = PVector.lerp(prevAcc, this.targetAcc[this.currentTargetAcc], this.lerpFactorAcc);
+      if (calAcc.dist(prevAcc) < .001) this.currentTargetAcc += 1;
+      this.prevAcc = calAcc;
+      this.nextAcc = calAcc;
+    } else {
+      this.prevAcc.set(0, 0, 0);
+      this.nextAcc.set(0, 0, 0);
+    }
+  }
   void updateNextRotation() {
     if (this.targetRotation != null && this.targetRotation.length > this.currentTargetRotation) {
       PVector calRotation = PVector.lerp(prevRotation, this.targetRotation[this.currentTargetRotation], this.lerpFactorRotation);
@@ -102,7 +137,7 @@ class Animator {
       this.nextRotation.set(0, 0, 0);
     }
   }
-  
+
   //void lerpToNext(PVector[] target, int currentTarget, float lerpFactor, PVector prev, PVector next) {
   //  if (target != null && target.length > currentTarget) {
   //    PVector cal = PVector.lerp(prev, target[currentTarget], lerpFactor);
@@ -121,6 +156,7 @@ class Animator {
     
     this.updateNextOffset();
     this.updateNextVel();
+    this.updateNextAcc();
     this.updateNextRotation();
     this.rotationOffset.set(rotationX, -rotationY, 0);  //rotationX and rotationY are global variable controled by GUI
   }
@@ -128,6 +164,7 @@ class Animator {
   void applyAmimationTo(JSONPointCloud jsonPC) {
     jsonPC.setOffset(this.nextOffset);
     jsonPC.setVel(this.nextVel);
+    jsonPC.setAcc(this.nextAcc);
     jsonPC.setColorPalette(this.colorPalette);
     jsonPC.setRotation(nextRotation.copy().add(rotationOffset)); //rotationX and rotationY are global variable controled by GUI
   }

@@ -11,7 +11,7 @@ class JSONPointCloud {
 
 
   private color[] colorPalette;
-  private PVector vel, offset, rotation;
+  private PVector vel, acc, offset, rotation;
 
   JSONPointCloud(String address, int cellIndex, color[] colorPalette) {
     this.address = address;
@@ -29,15 +29,9 @@ class JSONPointCloud {
     this.particles = new ArrayList();
     this.colorPalette = colorPalette;
     this.vel = new PVector(0, 0, 0);
+    this.acc = new PVector(0, 0, 0);
     this.offset = new PVector(0, 0, 0);
     this.rotation = new PVector(0, 0, 0);
-  }
-
-  PVector getVel() {
-    return this.vel;
-  }
-  PVector getOffset() {
-    return this.offset;
   }
 
   void updateFrame() {
@@ -46,18 +40,21 @@ class JSONPointCloud {
       float x = map(currentArray[i], rangeX[0], rangeX[1], -cellWidth/2*0.9, cellWidth/2*0.9);
       float y = map(currentArray[i+1], rangeY[0], rangeY[1], -cellHeight/2*0.9, cellHeight/2*0.9);
       float z = map(currentArray[i+2], rangeZ[0], rangeZ[1], -cellDepth/6, cellDepth/6);
-      this.addParticle(new PVector(x, y, z));
+      PVector point = new PVector(x, y, z).add(PVector.random3D().mult(2));
+      this.addParticle(point);
     }
+    println(this.vel, this.acc);
     this.currentFrame = (this.currentFrame + playBackSpeed) % this.jsonLength;
   }
 
   private void addParticle(PVector point) {
     color clr = this.colorPalette[floor(random(this.colorPalette.length))];
     point.add(this.offset);
-    this.particles.add(new Particle(point, this.vel, clr, lifeSpan, particleSize));
+    this.particles.add(new Particle(point, this.vel, this.acc, clr, lifeSpan, particleSize));
   }
 
   void drawParticles() {
+
     pushMatrix();
     translate(colIndex*cellWidth + cellWidth/2, rowIndex*cellHeight + cellHeight/2, -cellDepth/2);
     rotateX(rotation.x);
@@ -80,13 +77,15 @@ class JSONPointCloud {
     }
     popMatrix();
   }
-  
 
   void setOffset(PVector offset) {
     this.offset.set(offset);
   }
   void setVel(PVector vel) {
     this.vel.set(vel);
+  }
+  void setAcc(PVector acc) {
+    this.acc.set(acc);
   }
   void setRotation(PVector rotation) {
     this.rotation.set(rotation);

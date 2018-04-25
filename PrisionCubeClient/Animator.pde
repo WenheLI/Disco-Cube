@@ -5,7 +5,6 @@ class Animator {
   private PVector nextOffset;
   private float lerpFactorOffset;
 
-
   private PVector[] targetVel;
   private int currentTargetVel;
   private PVector prevVel;
@@ -123,7 +122,7 @@ class Animator {
     this.updateNextOffset();
     this.updateNextVel();
     this.updateNextRotation();
-    this.rotationOffset.set(rotationX, rotationY, 0);  //rotationX and rotationY are global variable controled by GUI
+    this.rotationOffset.set(rotationX, -rotationY, 0);  //rotationX and rotationY are global variable controled by GUI
   }
 
   void applyAmimationTo(JSONPointCloud jsonPC) {

@@ -16,10 +16,6 @@ float rotationX, rotationY;
 int lifeSpan;
 int particleSize;
 
-Slider2D directionSlider2D;
-float directionX = 0;
-float directionY = 0;
-float directionZ = 0;
 
 
 void setupGui() {
@@ -69,21 +65,7 @@ void setupGui() {
     .setPosition(startX, startY+spacing*20)
     .setSize(sliderW, sliderH)
     .setRange(1, 10)
-    .setValue(2)
-    ;
-
-
-  directionSlider2D = cp5.addSlider2D("wind")
-    .setPosition(startX, startY+spacing*32)
-    .setSize(sliderW, sliderW)
-    .setMinMax(-10, -10, 10, 10)
-    .setValue(0, 0)
-    ;
-  cp5.addSlider("directionY")
-    .setPosition(startX + 120, startY+spacing*32)
-    .setSize(sliderH, sliderW)
-    .setRange(-10, 10)
-    .setValue(0)
+    .setValue(5)
     ;
 
 
@@ -94,8 +76,7 @@ void drawGui() {
 
   rotationY = -offsetSlider2D.getArrayValue()[0];
   rotationX = -offsetSlider2D.getArrayValue()[1];
-  directionX = directionSlider2D.getArrayValue()[0];
-  directionZ = directionSlider2D.getArrayValue()[1];
+
 
   // draw GUI and DepthImage
   hint(DISABLE_DEPTH_TEST);

@@ -7,7 +7,7 @@ SyphonServer server;
 int cols, rows, cellWidth, cellHeight, cellDepth;
 
 void setup() {
-  size(1200, 600, P3D);
+  size(1800, 900 , P3D);
   background(0);
   //ortho();
   setupGui();
@@ -19,8 +19,8 @@ void setup() {
 
   jsonPCs = new ArrayList();
 
-  for (int i = 9; i < 18; i+=18) {
-    jsonPCs.add(new JSONPointCloud((i % 5) + ".json", i, colors));
+  for (int i = 0; i < 18; i+=1) {
+    jsonPCs.add(new JSONPointCloud((i % 5) + "new.json", i, colors));
   }
 
   animator = new Animator();
@@ -38,6 +38,7 @@ void draw() {
   }
   server.sendScreen();
   if (guiToggle) drawGui();
+  lights();
 }
 
 PVector ZERO = new PVector(0, 0, 0);

@@ -8,7 +8,6 @@ OpenCV opencv;
 
 PImage depthImg;
 PImage colorImg;
-PVector blackHolePos;
 
 ArrayList<Particle> particles;
 
@@ -23,7 +22,7 @@ int h;
 
 void setup() {
   size(1000, 800, P3D);
-  setupPeasyCam();
+  //setupPeasyCam();
   setupGui();
   particles = new ArrayList();
   kinect2 = new Kinect2(this);
@@ -31,13 +30,12 @@ void setup() {
   kinect2.initRegistered();
   kinect2.initDevice();
 
-  blackHolePos = new PVector(0, -212, 300);
 
   depthImg = new PImage(kinect2.depthWidth, kinect2.depthHeight, ARGB);
   opencv = new OpenCV(this, depthImg);
 
   json = new JSONObject();
-  
+
   w = kinect2.depthWidth;
   h = kinect2.depthHeight;
   resetStats();
@@ -47,8 +45,6 @@ void draw() {
   background(0);
 
   int[] rawDepth = kinect2.getRawDepth();
-
-  
 
   if (registeredColor) {
     colorImg = kinect2.getRegisteredImage();
@@ -73,33 +69,34 @@ void draw() {
   opencvTemp = opencv.getSnapshot();
   opencvTemp.loadPixels();
 
-
   ArrayList<PVector> pointsTemp = new ArrayList();
+
   //second iteration for point cloud based on opencv
   for (Integer i : indexes) {
     int x = i % kinect2.depthWidth;
     int y = floor(i / kinect2.depthWidth);
     if (pointCloud && x%resolution == 0 && y%resolution == 0 && opencvTemp.pixels[i] != color(0)) {
-      float pX = map(x, 0, w, -w/2, w/2) + offsetX;
+      float pX = map(x, 0, w, -w/2, w/2);
       float pY = map(y, 0, h, -h/2, h/2);
-      float pZ = map(rawDepth[i], 0, 4499, 900, -900) + offsetZ;
+      float pZ = map(rawDepth[i], 0, 4499, 900, -900);
 
       //stats
-      if (pZ>closestPoint.z) closestPoint.set(pX, pY, pZ);
+      if (pZ > closestPoint.z) closestPoint.set(pX, pY, pZ);
       if (pZ < farthestPoint.z) farthestPoint.z = pZ;
       sumPoint.add(pX, pY, pZ);
       numOfPoints++;
 
       PVector point = new PVector(pX, pY, pZ);
       color clr;
-      // color
+      // color 
       if (registeredColor) clr = colorImg.pixels[i];
       else clr = color(255);
 
       //add particles
-      PVector vel = new PVector(directionX, -directionY, directionZ);
+      PVector vel = new PVector(0, 0, 0);
       pointsTemp.add(point);
-      particles.add(new Particle(point, vel, clr, lifeSpan, particleSize));
+      PVector particlePos = point.copy().add(width/2 + offsetX, height/2, -500 + offsetZ);
+      particles.add(new Particle(particlePos, vel, clr, lifeSpan, particleSize));
     }
   }
 
@@ -121,33 +118,26 @@ void draw() {
     StartSavePoint(json, pointsTemp, startPoint);
   }
 
-  //contours point cloud
-  if (pointCloudOfContours) {
-    contours = opencv.findContours();
-    for (Contour c : contours) {
-      for ( PVector point : c.getPoints()) {
-        int i = int(point.x + point.y * kinect2.depthWidth);
-        if (rawDepth[i] >= thresholdMin && rawDepth[i] <= thresholdMax && rawDepth[i] != 0) {
-          point.x = map(point.x, 0, w, -w/2, w/2) + offsetX;
-          point.y = map(point.y, 0, h, -h/2, h/2);
-          point.z = map(rawDepth[i], 0, 4499, 900, -900) + offsetZ;
-          PVector vel = new PVector(directionX, -directionY, directionZ);
-          particles.add(new Particle(point, vel, color(255, 0, 0), lifeSpan, particleSize));
-        }
-      }
-    }
-  }
   indexes.clear();
 
-  processStats();
   drawParticles();
-  drawBlackHole();
 
   lights();
   if (guiToggle) drawGui();
 }
 
+void drawParticles() {
+  for (int i = 0; i < particles.size(); i++) {
+    Particle p = particles.get(i);
+    p.display();
+    p.update();
 
+    if (p.isDead) {
+      particles.remove(p);
+      i--;
+    }
+  }
+}
 
 void keyPressed() {
   if (key == ' ') guiToggle = !guiToggle;
@@ -163,7 +153,6 @@ void StartSavePoint(JSONObject json, ArrayList<PVector> pointsTemp, int keyValue
     points.setInt(j+1, floor(pointsTemp.get(i).y));
     points.setInt(j+2, floor(pointsTemp.get(i).z));
   }
-
   json.setJSONArray(keyValue + "", points);
 }
 
@@ -172,16 +161,16 @@ void stopJson(JSONObject json, int start) {
   JSONArray xs = new JSONArray();
   xs.setInt(0, -w/2);
   xs.setInt(1, w/2);
-  
+
   JSONArray ys = new JSONArray();
   ys.setInt(0, -h/2);
   ys.setInt(1, h/2);
-  
+
   JSONArray zs = new JSONArray();
   println(farthestPoint, closestPoint);
   zs.setInt(0, floor(farthestPoint.z));
   zs.setInt(1, floor(closestPoint.z));
-  
+
   json.setJSONArray("rangeX", xs);
   json.setJSONArray("rangeY", ys);
   json.setJSONArray("rangeZ", zs);

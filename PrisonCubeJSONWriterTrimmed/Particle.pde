@@ -3,7 +3,7 @@ class Particle {
   PVector vel;
   color clr;
   int size;
-
+  
   int lifeSpan;
   int life = 0;
   boolean isDead;
@@ -11,7 +11,7 @@ class Particle {
   Particle(PVector pos_, PVector vel_, color clr_, int lifeSpan_, int size_) {
     pos = pos_;
     vel = vel_;
-    vel.add(blackHolePos.copy().sub(pos).normalize().mult(blackHoleSpeed));
+   
 
     clr = clr_;
     lifeSpan = lifeSpan_;
@@ -19,7 +19,7 @@ class Particle {
   }
 
   void update() {
-    pos.add(vel.copy().add(blackHolePos.copy().sub(pos).normalize().mult(blackHoleSpeed)));
+    pos.add(vel.copy());
     life++;
     isDead = (life > lifeSpan);
   }

@@ -1,93 +1,3 @@
-import java.util.ArrayList;
-import KinectPV2.KJoint;
-import KinectPV2.*;
-import oscP5.*;
-import netP5.*;
-
-OscP5 oscP5;
-NetAddress myTarget;
-
-KinectPV2 kinect;
-PVector pHandLeftPos;
-PVector pHandRightPos;
-PVector pLegLeftPos;
-PVector pLegRightPos;
-
-void setup() {
-  size(512, 424, P3D);
-
-  kinect = new KinectPV2(this);
-
-  //Enables depth and Body tracking (mask image)
-  kinect.enableDepthMaskImg(true);
-  kinect.enableSkeletonDepthMap(true);
-
-  kinect.init();
-
-  oscP5 = new OscP5(this, 12000);
-  myTarget = new NetAddress("127.0.0.1", 12001);
-}
-
-void draw() {
-  background(0);
-
-  ArrayList<KSkeleton> skeletonArray =  kinect.getSkeletonDepthMap();
-
-  //individual joints
-
-  for (int i = 0; i < skeletonArray.size(); i++) {
-    KSkeleton skeleton = (KSkeleton) skeletonArray.get(i);
-    //if the skeleton is being tracked compute the skleton joints
-    if (skeleton.isTracked()) {
-      KJoint[] joints = skeleton.getJoints();
-      checkNull(joints);
-      checkSignal(joints);
-
-      color col  = skeleton.getIndexColor();
-      fill(col);
-      stroke(col);
-
-      drawBody(joints);
-    }
-  }
-}
-
-void checkNull(KJoint[] joints) {
-  if (pHandLeftPos == null) pHandLeftPos = joints[KinectPV2.JointType_HandLeft].getPosition().copy();
-  if (pHandRightPos == null) pHandRightPos = joints[KinectPV2.JointType_HandRight].getPosition().copy();
-  if (pLegLeftPos == null) pLegLeftPos = joints[KinectPV2.JointType_KneeLeft].getPosition().copy();
-  if (pLegRightPos == null) pLegRightPos = joints[KinectPV2.JointType_KneeRight].getPosition().copy();
-}
-
-void checkSignal(KJoint[] joints) {
-  if (pHandLeftPos.dist(joints[KinectPV2.JointType_HandLeft].getPosition()) > 10) {
-    OscMessage myMessage = new OscMessage("/test");
-    myMessage.add(1);
-    oscP5.send(myMessage, myTarget);
-  }
-  if (pHandRightPos.dist(joints[KinectPV2.JointType_HandRight].getPosition()) > 10) {
-    OscMessage myMessage = new OscMessage("/test");
-    myMessage.add(2);
-    oscP5.send(myMessage, myTarget);
-  }
-  if (pLegLeftPos.dist(joints[KinectPV2.JointType_KneeLeft].getPosition()) > 10) {
-    OscMessage myMessage = new OscMessage("/test");
-    myMessage.add(3);
-    oscP5.send(myMessage, myTarget);
-    println("kneeLeft") ;
-  }
-  if (pLegRightPos.dist(joints[KinectPV2.JointType_KneeRight].getPosition()) > 10) {
-    OscMessage myMessage = new OscMessage("/test");
-    myMessage.add(4);
-    oscP5.send(myMessage, myTarget);
-    println("kneeRight") ;
-  }
-  pHandLeftPos = joints[KinectPV2.JointType_HandLeft].getPosition().copy();
-  pHandRightPos = joints[KinectPV2.JointType_HandRight].getPosition().copy();
-  pLegLeftPos = joints[KinectPV2.JointType_KneeLeft].getPosition().copy();
-  pLegRightPos = joints[KinectPV2.JointType_KneeRight].getPosition().copy();
-}
-
 void drawBody(KJoint[] joints) {
   drawBone(joints, KinectPV2.JointType_Head, KinectPV2.JointType_Neck);
   drawBone(joints, KinectPV2.JointType_Neck, KinectPV2.JointType_SpineShoulder);
@@ -149,4 +59,40 @@ void drawBone(KJoint[] joints, int jointType1, int jointType2) {
   ellipse(0, 0, 25, 25);
   popMatrix();
   line(joints[jointType1].getX(), joints[jointType1].getY(), joints[jointType1].getZ(), joints[jointType2].getX(), joints[jointType2].getY(), joints[jointType2].getZ());
+}
+
+//draw a ellipse depending on the hand state
+void drawHandState(KJoint joint) {
+  noStroke();
+  handState(joint.getState());
+  pushMatrix();
+  translate(joint.getX(), joint.getY(), joint.getZ());
+  ellipse(0, 0, 70, 70);
+  popMatrix();
+}
+
+/*
+Different hand state
+ KinectPV2.HandState_Open
+ KinectPV2.HandState_Closed
+ KinectPV2.HandState_Lasso
+ KinectPV2.HandState_NotTracked
+ */
+
+//Depending on the hand state change the color
+void handState(int handState) {
+  switch(handState) {
+  case KinectPV2.HandState_Open:
+    fill(0, 255, 0);
+    break;
+  case KinectPV2.HandState_Closed:
+    fill(255, 0, 0);
+    break;
+  case KinectPV2.HandState_Lasso:
+    fill(0, 0, 255);
+    break;
+  case KinectPV2.HandState_NotTracked:
+    fill(100, 100, 100);
+    break;
+  }
 }

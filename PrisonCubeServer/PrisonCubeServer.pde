@@ -8,6 +8,8 @@ import netP5.*;
 KinectPV2 kinect;
 OpenCV opencv;
 
+FaceData [] faceData;
+
 PImage depthImg;
 PImage colorImg;
 
@@ -22,6 +24,10 @@ int jsonState = 0;
 int w;
 int h;
 
+float pitch;
+float yaw;
+float roll;
+
 OscP5 oscP5;
 NetAddress myTarget;
 
@@ -29,6 +35,11 @@ PVector pHandLeftPos;
 PVector pHandRightPos;
 PVector pLegLeftPos;
 PVector pLegRightPos;
+PVector pHeadPos;
+
+float headPitch;
+
+color[] newColor = {#ff00c1, #9600ff, #4900ff, #00b8ff, #00fff9};
 
 int handHeadCounter = 0;
 boolean isClick = false;
@@ -44,6 +55,16 @@ void setup() {
   kinect.enableSkeletonDepthMap(true);
   kinect.enableColorImg(true);
   kinect.enableDepthImg(true);
+
+  //for face detection based on the color Img
+  kinect.enableColorImg(true);
+
+  //for face detection base on the infrared Img
+  kinect.enableInfraredImg(true);
+
+  //enable face detection
+  kinect.enableFaceDetection(true);
+
   kinect.init();
 
   w = 512;
@@ -56,11 +77,14 @@ void setup() {
   oscP5 = new OscP5(this, 12000);
   myTarget = new NetAddress("127.0.0.1", 12001);
   resetStats();
+
+  headPitch = 15f;
 }
 
 void draw() {
   background(0);
 
+  kinect.generateFaceData();
 
   int[] rawDepth = kinect.getRawDepthData();
 
@@ -101,7 +125,7 @@ void draw() {
       color clr;
       // color 
       if (registeredColor) clr = colorImg.pixels[i];
-      else clr = color(255);
+      else clr = newColor[(int)random(newColor.length)];
 
       //add particles
       PVector vel = new PVector(0, 0, 0);
@@ -136,9 +160,7 @@ void draw() {
       PVector head = joints[KinectPV2.JointType_Head].getPosition().copy();
       float leftHeadDist = head.y - leftHand.y;
       float rightHeadDist = head.y - rightHand.y;
-      println(leftHand);
-      println(head);
-      println(leftHeadDist);
+
       if ( (leftHeadDist < 30)&& (leftHeadDist > 1) ||(rightHeadDist > 1) && (rightHeadDist < 30)) {
         handHeadCounter ++;
         if (handHeadCounter > 80) {
@@ -159,9 +181,30 @@ void draw() {
       drawBody(joints);
       drawHandState(joints[KinectPV2.JointType_HandRight]);
       drawHandState(joints[KinectPV2.JointType_HandLeft]);
-      if (jsonState == 0) {
+      if (jsonState == 1) {
         checkNull(joints);
         checkSignal(joints);
+      }
+    }
+  }
+  ArrayList<FaceData> faceData =  kinect.getFaceData();
+  for (int i = 0; i < faceData.size(); i++) {
+    FaceData faceD = faceData.get(i);
+    if (faceD.isFaceTracked()) {
+      pitch = faceD.getPitch();
+      yaw   = faceD.getYaw();
+      roll  = faceD.getRoll();
+      println(abs(pitch - headPitch));
+      if (abs(pitch - headPitch) > 30) {
+        newColor = new color[5];
+        for (int j = 0; j < 5; j++) {
+          newColor[i] = color(random(255), random(255), random(255));
+        }
+        OscMessage myMessage = new OscMessage("/color");
+        for (int it : newColor) {
+          myMessage.add(it);
+        }
+        oscP5.send(myMessage, myTarget);
       }
     }
   }
@@ -263,34 +306,40 @@ void checkSignal(KJoint[] joints) {
   float leftLegDist = pLegLeftPos.dist(joints[KinectPV2.JointType_KneeLeft].getPosition());
   float rightLegDist = pLegRightPos.dist(joints[KinectPV2.JointType_KneeRight].getPosition());
 
-  if (leftHandDist > 10) {
-    OscMessage myMessage = new OscMessage("/hand");
+  if (leftHandDist > 20) {
+    OscMessage myMessage = new OscMessage("/lefthand");
     PVector handMovement = joints[KinectPV2.JointType_HandLeft].getPosition().copy().sub(pHandLeftPos);
-    myMessage.add(handMovement.mag());
-    myMessage.add(handMovement.normalize().array());
+    for (float it : handMovement.array()) {
+      myMessage.add(it);
+    }
+    myMessage.add(leftHandDist);
+
     oscP5.send(myMessage, myTarget);
   }
-  if (rihgtHandDist > 10) {
-    OscMessage myMessage = new OscMessage("/hand");
+  if (rihgtHandDist > 20) {
+    OscMessage myMessage = new OscMessage("/wind");
     PVector handMovement = joints[KinectPV2.JointType_HandRight].getPosition().copy().sub(pHandRightPos);
-    myMessage.add(handMovement.mag());
-    myMessage.add(handMovement.normalize().array());
+    for (float it : handMovement.array()) {
+      myMessage.add(it);
+    }
     oscP5.send(myMessage, myTarget);
   }
 
-  if (leftLegDist > 10) {
-    OscMessage myMessage = new OscMessage("/leg");
+  if (leftLegDist > 20) {
+    OscMessage myMessage = new OscMessage("/wind");
     PVector legMovement = joints[KinectPV2.JointType_KneeLeft].getPosition().copy().sub(pLegLeftPos);
-    myMessage.add(legMovement.mag());
-    myMessage.add(legMovement.normalize().array());
+    for (float it : legMovement.array()) {
+      myMessage.add(it);
+    }
     oscP5.send(myMessage, myTarget);
     //println("kneeLeft") ;
   }
-  if (rightLegDist > 10) {
-    OscMessage myMessage = new OscMessage("/leg");
+  if (rightLegDist > 20) {
+    OscMessage myMessage = new OscMessage("/wind");
     PVector legMovement = joints[KinectPV2.JointType_KneeRight].getPosition().copy().sub(pLegRightPos);
-    myMessage.add(legMovement.mag());
-    myMessage.add(legMovement.normalize().array());
+    for (float it : legMovement.array()) {
+      myMessage.add(it);
+    }
     oscP5.send(myMessage, myTarget);
     //println("kneeRight") ;
   }

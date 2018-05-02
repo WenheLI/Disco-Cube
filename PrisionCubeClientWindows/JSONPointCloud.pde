@@ -43,7 +43,7 @@ class JSONPointCloud {
       PVector point = new PVector(x, y, z).add(PVector.random3D().mult(2));
       this.addParticle(point);
     }
-    println(this.vel, this.acc);
+    //println(this.vel, this.acc);
     this.currentFrame = (this.currentFrame + playBackSpeed) % this.jsonLength;
   }
 

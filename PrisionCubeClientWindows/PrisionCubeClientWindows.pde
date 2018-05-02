@@ -27,7 +27,7 @@ void setup() {
 
   jsonPCs = new ArrayList();
 
-  for (int i = 0; i < 18; i+=1) {
+  for (int i = 17; i < 18; i+=1) {
     jsonPCs.add(new JSONPointCloud((i % 5) + ".json", i, colors));
   }
 
@@ -64,20 +64,16 @@ void oscEvent(OscMessage msg) {
   print(" addrpattern: "+msg.addrPattern());
   println(" typetag: "+msg.typetag());
 
-  int flag = msg.get(0).intValue();
-  if (flag == 1) {
-    PVector[] pvs = { new PVector(-1, 0, 0), ZERO};
-    animator.setLerpFactorAcc(.1).setTargetAcc(pvs);
-  } else if (flag == 2) {
-    PVector[] pvs = {new PVector(1, 0, 0), ZERO};
-    animator.setLerpFactorAcc(.1).setTargetAcc(pvs);
-  } else if (flag == 3) {
-    PVector[] pvs = {new PVector(0, 1, 0), ZERO};
-    animator.setLerpFactorAcc(.1).setTargetAcc(pvs);
-  } else if (flag == 4) {
-    PVector[] pvs = {new PVector(0, -1, 0), ZERO};
-    animator.setLerpFactorAcc(.1).setTargetAcc(pvs);
-  }
+  if (msg.addrPattern().equals("/wind")) {
+    println("hello");
+    PVector force = new PVector(
+      msg.get(0).floatValue(), 
+      msg.get(1).floatValue(), 
+      msg.get(2).floatValue()
+      );
+    PVector[] pvs = { force, ZERO};
+    animator.setLerpFactorAcc(.3).setTargetAcc(pvs);
+  } 
 }
 
 

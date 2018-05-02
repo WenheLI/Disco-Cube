@@ -28,6 +28,8 @@ float pitch;
 float yaw;
 float roll;
 
+float maxDist = -1;
+
 OscP5 oscP5;
 NetAddress myTarget;
 
@@ -36,6 +38,8 @@ PVector pHandRightPos;
 PVector pLegLeftPos;
 PVector pLegRightPos;
 PVector pHeadPos;
+
+PVector pHipPos;
 
 float headPitch;
 
@@ -71,6 +75,7 @@ void setup() {
   h = 424;
   depthImg = new PImage(w, h, ARGB);
   opencv = new OpenCV(this, depthImg);
+  skeletonGraphics = createGraphics(w,h,P3D);
 
   json = new JSONObject();
 
@@ -130,25 +135,33 @@ void draw() {
       //add particles
       PVector vel = new PVector(0, 0, 0);
       pointsTemp.add(point);
-      PVector particlePos = point.copy().add(width/2 + offsetX, height/2, -500 + offsetZ);
-      particles.add(new Particle(particlePos, vel, clr, lifeSpan, particleSize));
+      if (random(1)<0.5) {
+        PVector particlePos = point.copy().add(width/2 + offsetX, height/2, -500 + offsetZ).add(PVector.random3D().mult(2));
+        ;
+        particles.add(new Particle(particlePos, vel, clr, lifeSpan, particleSize));
+      }
     }
   }
 
   ArrayList<KSkeleton> skeletonArray =  kinect.getSkeletonDepthMap();
-
+  maxDist = -1;
   int skeletonIndex = -1;
-  float minDistance = 10000f;
   for (int i = 0; i < skeletonArray.size(); i++) {
     KSkeleton skeleton = (KSkeleton) skeletonArray.get(i);
     if (skeleton.isTracked()) {
       KJoint[] joints = skeleton.getJoints();
-      if (joints[0].getPosition().z < minDistance) {
-        minDistance =  joints[0].getPosition().z;
+      PVector hip = PVector.add(joints[KinectPV2.JointType_HipLeft].getPosition(), 
+        joints[KinectPV2.JointType_HipRight].getPosition()).div(2);
+      float dis = PVector.dist(joints[KinectPV2.JointType_Neck].getPosition(), hip);
+      if (dis > maxDist) {
+        maxDist = dis;
         skeletonIndex = i;
       }
     }
   }
+  //println(maxDist + " " + skeletonIndex);
+  //maxDisyt < 120 omit
+  if (maxDist < jointThreshold) skeletonIndex = -1;
   if (skeletonIndex >= 0) {
     KSkeleton skeleton = (KSkeleton) skeletonArray.get(skeletonIndex);
     //if the skeleton is being tracked compute the skleton joints
@@ -169,6 +182,9 @@ void draw() {
             isClick = !isClick;
           } else if (!isClick) {
             isClick = !isClick;
+            pHipPos = PVector.add(joints[KinectPV2.JointType_HipLeft].getPosition(), 
+              joints[KinectPV2.JointType_HipRight].getPosition());
+            pHipPos.div(2);
           }
           handHeadCounter = 0;
         }
@@ -186,28 +202,29 @@ void draw() {
         checkSignal(joints);
       }
     }
-  }
-  ArrayList<FaceData> faceData =  kinect.getFaceData();
-  for (int i = 0; i < faceData.size(); i++) {
-    FaceData faceD = faceData.get(i);
-    if (faceD.isFaceTracked()) {
-      pitch = faceD.getPitch();
-      yaw   = faceD.getYaw();
-      roll  = faceD.getRoll();
-      println(abs(pitch - headPitch));
-      if (abs(pitch - headPitch) > 30) {
-        newColor = new color[5];
-        for (int j = 0; j < 5; j++) {
-          newColor[i] = color(random(255), random(255), random(255));
+
+    ArrayList<FaceData> faceData =  kinect.getFaceData();
+    for (int i = 0; i < faceData.size(); i++) {
+      FaceData faceD = faceData.get(i);
+      if (faceD.isFaceTracked()) {
+        pitch = faceD.getPitch();
+        yaw   = faceD.getYaw();
+        roll  = faceD.getRoll();
+        if (abs(pitch - headPitch) > 30) {
+          newColor = new color[5];
+          for (int j = 0; j < 5; j++) {
+            newColor[j] = color(random(255), random(255), random(255));
+          }
+          OscMessage myMessage = new OscMessage("/color");
+          for (int it : newColor) {
+            myMessage.add(it);
+          }
+          oscP5.send(myMessage, myTarget);
         }
-        OscMessage myMessage = new OscMessage("/color");
-        for (int it : newColor) {
-          myMessage.add(it);
-        }
-        oscP5.send(myMessage, myTarget);
       }
     }
   }
+
   if (isClick && jsonState == 0) {
     jsonState = 1;
     startPoint = -1;
@@ -306,8 +323,18 @@ void checkSignal(KJoint[] joints) {
   float leftLegDist = pLegLeftPos.dist(joints[KinectPV2.JointType_KneeLeft].getPosition());
   float rightLegDist = pLegRightPos.dist(joints[KinectPV2.JointType_KneeRight].getPosition());
 
+  PVector hipPos = PVector.add(joints[KinectPV2.JointType_HipLeft].getPosition(), 
+    joints[KinectPV2.JointType_HipRight].getPosition()).div(2);
+
+  OscMessage offsetMsg = new OscMessage("/offset");
+
+  offsetMsg.add(hipPos.x - pHipPos.x);
+  offsetMsg.add(hipPos.y - pHipPos.y); 
+  offsetMsg.add(hipPos.z - pHipPos.z); 
+  oscP5.send(offsetMsg, myTarget);
+
   if (leftHandDist > 20) {
-    OscMessage myMessage = new OscMessage("/lefthand");
+    OscMessage myMessage = new OscMessage("/wind");
     PVector handMovement = joints[KinectPV2.JointType_HandLeft].getPosition().copy().sub(pHandLeftPos);
     for (float it : handMovement.array()) {
       myMessage.add(it);

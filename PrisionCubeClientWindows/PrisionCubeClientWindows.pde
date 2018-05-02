@@ -27,7 +27,7 @@ void setup() {
 
   jsonPCs = new ArrayList();
 
-  for (int i = 17; i < 18; i+=1) {
+  for (int i = 0; i < 18; i+=1) {
     jsonPCs.add(new JSONPointCloud((i % 5) + ".json", i, colors));
   }
 
@@ -65,15 +65,30 @@ void oscEvent(OscMessage msg) {
   println(" typetag: "+msg.typetag());
 
   if (msg.addrPattern().equals("/wind")) {
-    println("hello");
     PVector force = new PVector(
       msg.get(0).floatValue(), 
       msg.get(1).floatValue(), 
       msg.get(2).floatValue()
       );
-    PVector[] pvs = { force, ZERO};
+    force.div(16);
+    PVector[] pvs = {force, ZERO};
     animator.setLerpFactorAcc(.3).setTargetAcc(pvs);
-  } 
+  } else if (msg.addrPattern().equals("/offset")) {
+    PVector arrow = new PVector(
+      msg.get(0).floatValue(), 
+      msg.get(1).floatValue(), 
+      msg.get(2).floatValue()
+      ); 
+    //println(arrow);
+    PVector[] pvs = { arrow };
+    animator.setLerpFactorAcc(.1).setTargetOffset(pvs);
+  } else if (msg.addrPattern().equals("/color")) {
+    color[] newColor = new color[5];
+    for (int i = 0; i < 5; i++) {
+      newColor[i] = msg.get(i).intValue();
+    }
+    animator.setColorPalette(newColor);
+  }
 }
 
 

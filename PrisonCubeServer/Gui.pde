@@ -9,7 +9,8 @@ int resolution;
 int thresholdMin;
 int thresholdMax;
 float monitorScale;
-int opencvThreshold;
+int jointThreshold;
+
 
 boolean pointCloud;
 boolean registeredColor;
@@ -44,23 +45,23 @@ void setupGui() {
     .setRange(0, 4499)
     .setValue(2000)
     ;
-  cp5.addSlider("resolution")
+  cp5.addSlider("jointThreshold")
     .setPosition(startX, startY+spacing*2)
+    .setSize(sliderW, sliderH)
+    .setRange(0, 255)
+    .setValue(90)
+    ;
+  cp5.addSlider("resolution")
+    .setPosition(startX, startY+spacing*3)
     .setSize(sliderW, sliderH)
     .setRange(2, 10)
     .setValue(8)
     ;
   cp5.addSlider("monitorScale")
-    .setPosition(startX, startY+spacing*3)
+    .setPosition(startX, startY+spacing*4)
     .setSize(sliderW, sliderH)
     .setRange(0.1, 1.0)
     .setValue(0.5)
-    ;
-  cp5.addSlider("opencvThreshold")
-    .setPosition(startX, startY+spacing*4)
-    .setSize(sliderW, sliderH)
-    .setRange(0, 255)
-    .setValue(50)
     ;
   cp5.addToggle("pointCloud")
     .setPosition(startX, startY+spacing*5)
@@ -89,13 +90,13 @@ void setupGui() {
     .setPosition(startX, startY+spacing*19)
     .setSize(sliderW, sliderH)
     .setRange(2, 20)
-    .setValue(2)
+    .setValue(10)
     ;
   cp5.addSlider("particleSize")
     .setPosition(startX, startY+spacing*20)
     .setSize(sliderW, sliderH)
     .setRange(1, 10)
-    .setValue(2)
+    .setValue(6)
     ;
 
   cp5.setAutoDraw(false);
@@ -125,7 +126,7 @@ void drawDepthImage() {
   translate(width, 0);
   scale(monitorScale);
   //image(kinect2.getDepthImage(), -kinect2.depthWidth, 0, kinect2.depthWidth, kinect2.depthHeight);
-  image(depthImg, -2*w, 0, w, h);
+  image(skeletonGraphics, -2*w, 0, w, h);
   image(opencv.getOutput(), -w, 0, w, h);
   pushStyle();
   popMatrix();

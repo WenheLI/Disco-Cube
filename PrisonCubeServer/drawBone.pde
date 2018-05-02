@@ -1,4 +1,7 @@
+PGraphics skeletonGraphics;
 void drawBody(KJoint[] joints) {
+  skeletonGraphics.beginDraw();
+  skeletonGraphics.background(0);
   drawBone(joints, KinectPV2.JointType_Head, KinectPV2.JointType_Neck);
   drawBone(joints, KinectPV2.JointType_Neck, KinectPV2.JointType_SpineShoulder);
   drawBone(joints, KinectPV2.JointType_SpineShoulder, KinectPV2.JointType_SpineMid);
@@ -42,33 +45,35 @@ void drawBody(KJoint[] joints) {
   drawJoint(joints, KinectPV2.JointType_ThumbRight);
 
   drawJoint(joints, KinectPV2.JointType_Head);
+  skeletonGraphics.endDraw();
 }
 
 //draw a single joint
 void drawJoint(KJoint[] joints, int jointType) {
-  pushMatrix();
-  translate(joints[jointType].getX(), joints[jointType].getY(), joints[jointType].getZ());
-  ellipse(0, 0, 25, 25);
-  popMatrix();
+  skeletonGraphics.pushMatrix();
+  skeletonGraphics.translate(joints[jointType].getX(), joints[jointType].getY(), joints[jointType].getZ());
+  skeletonGraphics.ellipse(0, 0, 25, 25);
+  skeletonGraphics.popMatrix();
 }
 
 //draw a bone from two joints
 void drawBone(KJoint[] joints, int jointType1, int jointType2) {
-  pushMatrix();
-  translate(joints[jointType1].getX(), joints[jointType1].getY(), joints[jointType1].getZ());
-  ellipse(0, 0, 25, 25);
-  popMatrix();
-  line(joints[jointType1].getX(), joints[jointType1].getY(), joints[jointType1].getZ(), joints[jointType2].getX(), joints[jointType2].getY(), joints[jointType2].getZ());
+
+  skeletonGraphics.pushMatrix();
+  skeletonGraphics.translate(joints[jointType1].getX(), joints[jointType1].getY(), joints[jointType1].getZ());
+  skeletonGraphics.ellipse(0, 0, 25, 25);
+  skeletonGraphics.popMatrix();
+  skeletonGraphics.line(joints[jointType1].getX(), joints[jointType1].getY(), joints[jointType1].getZ(), joints[jointType2].getX(), joints[jointType2].getY(), joints[jointType2].getZ());
 }
 
 //draw a ellipse depending on the hand state
 void drawHandState(KJoint joint) {
-  noStroke();
+  skeletonGraphics.noStroke();
   handState(joint.getState());
-  pushMatrix();
-  translate(joint.getX(), joint.getY(), joint.getZ());
-  ellipse(0, 0, 70, 70);
-  popMatrix();
+  skeletonGraphics.pushMatrix();
+  skeletonGraphics.translate(joint.getX(), joint.getY(), joint.getZ());
+  skeletonGraphics.ellipse(0, 0, 70, 70);
+  skeletonGraphics.popMatrix();
 }
 
 /*
@@ -83,16 +88,16 @@ Different hand state
 void handState(int handState) {
   switch(handState) {
   case KinectPV2.HandState_Open:
-    fill(0, 255, 0);
+    skeletonGraphics.fill(0, 255, 0);
     break;
   case KinectPV2.HandState_Closed:
-    fill(255, 0, 0);
+    skeletonGraphics.fill(255, 0, 0);
     break;
   case KinectPV2.HandState_Lasso:
-    fill(0, 0, 255);
+    skeletonGraphics.fill(0, 0, 255);
     break;
   case KinectPV2.HandState_NotTracked:
-    fill(100, 100, 100);
+    skeletonGraphics.fill(100, 100, 100);
     break;
   }
 }

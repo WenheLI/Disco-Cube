@@ -25,6 +25,11 @@ class Animator {
 
   private PVector rotationOffset; //now controled by GUI
 
+  int animatorState = 0;
+  //state 0 means nobody is in front of the kinect, the point cloud joggling and moving theirselves gently
+  //state 1 means somebody is in front of the kinect but hasn't started recording, nothing moves
+  //state 2 means somebody is recording, everything moves based on the user's motion
+
   float xoff = 0.1;
   float yoff = 0.213;
   float step = 0.01;
@@ -141,39 +146,39 @@ class Animator {
       this.nextRotation.set(0, 0, 0);
     }
   }
-
-  //void lerpToNext(PVector[] target, int currentTarget, float lerpFactor, PVector prev, PVector next) {
-  //  if (target != null && target.length > currentTarget) {
-  //    PVector cal = PVector.lerp(prev, target[currentTarget], lerpFactor);
-  //    if (cal.dist(prev) < .001) currentTarget += 1;
-  //    prev = cal;
-  //    next = cal;
-  //  } else {
-  //    prev.set(0, 0, 0);
-  //    next.set(0, 0, 0);
-  //  }
-  //}
-
   void updateNext() {
-    //the line below bu work
-    //this.lerpToNext(this.targetOffset, this.currentTargetOffset, this.lerpFactorOffset, this.prevOffset, this.nextOffset);
-
     this.updateNextOffset();
     this.updateNextVel();
     this.updateNextAcc();
     this.updateNextRotation();
 
-    //this.rotationOffset.set(map(noise(xoff),0,1,-PI/3,PI/3), map(noise(yoff),0,1,-PI/3,PI/3), 0);  //rotationX and rotationY are global variable controled by GUI
-    this.rotationOffset.set(rotationX, rotationY, 0);
+    this.rotationOffset.set(map(noise(xoff), 0, 1, -PI/5, PI/5), map(noise(yoff), 0, 1, -PI/5, PI/5), 0);  //rotationX and rotationY are global variable controled by GUI
+    //this.rotationOffset.set(rotationX, rotationY, 0);
     xoff+=step;
     yoff+=step;
   }
+  void setAnimatorState(int animatorState) {
+    this.animatorState = animatorState;
+  }
 
   void applyAmimationTo(JSONPointCloud jsonPC) {
-    jsonPC.setOffset(this.nextOffset);
-    jsonPC.setVel(this.nextVel);
-    jsonPC.setAcc(this.nextAcc);
-    jsonPC.setColorPalette(this.colorPalette);
-    jsonPC.setRotation(nextRotation.copy().add(rotationOffset)); //rotationX and rotationY are global variable controled by GUI
+    if (animatorState == 0) {
+      PVector [] pvs = {ZERO};
+      this.setTargetOffset(pvs);
+      this.setTargetVel(pvs);
+      this.setTargetAcc(pvs);
+      jsonPC.setRotation(rotationOffset.copy());
+      jsonPC.setPlaybackSpeed(0.5);
+    } else if (animatorState == 1) {
+      jsonPC.setRotation(nextRotation.copy());
+      jsonPC.setPlaybackSpeed(0);
+    } else if (animatorState == 2) {
+      jsonPC.setOffset(this.nextOffset);
+      jsonPC.setVel(this.nextVel);
+      jsonPC.setAcc(this.nextAcc);
+      jsonPC.setColorPalette(this.colorPalette);
+      jsonPC.setRotation(nextRotation.copy());
+      jsonPC.setPlaybackSpeed(2);
+    }
   }
 } 

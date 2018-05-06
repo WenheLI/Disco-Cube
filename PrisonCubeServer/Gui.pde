@@ -54,7 +54,7 @@ void setupGui() {
   cp5.addSlider("resolution")
     .setPosition(startX, startY+spacing*3)
     .setSize(sliderW, sliderH)
-    .setRange(2, 10)
+    .setRange(2, 12)
     .setValue(8)
     ;
   cp5.addSlider("monitorScale")

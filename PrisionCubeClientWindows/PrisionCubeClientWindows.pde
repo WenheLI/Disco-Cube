@@ -3,6 +3,7 @@ import spout.*;
 import oscP5.*;
 import netP5.*;
 
+
 ArrayList<JSONPointCloud> jsonPCs;
 Animator animator;
 color[] colors = {#ff00c1, #9600ff, #4900ff, #00b8ff, #00fff9};
@@ -13,9 +14,16 @@ int cols, rows, cellWidth, cellHeight, cellDepth;
 
 OscP5 oscP5;
 
+FileWatcher file;
+
+int countForJSON;
+
 void setup() {
   size(1200, 600, P3D);
   background(0);
+
+  countForJSON = -1;
+
   oscP5 = new OscP5(this, 12001);
   //ortho();
   setupGui();
@@ -28,11 +36,13 @@ void setup() {
   jsonPCs = new ArrayList();
 
   for (int i = 0; i < 18; i+=1) {
-    jsonPCs.add(new JSONPointCloud((i % 5) + ".json", i, colors));
+    jsonPCs.add(new JSONPointCloud( i%6 + ".json", i, colors));
   }
 
   animator = new Animator();
 
+  //file =  new FileWatcher("C:\\Users\\mars_\\Documents\\GitHub\\PrisionCube\\PrisonCubeServer\\data");
+  //file.handleEvents();
   //server = new SyphonServer(this, "Processing Syphon");
   spout = new Spout(this);
   spout.createSender("Spout Processing");
@@ -54,15 +64,33 @@ void draw() {
 
   //server.sendScreen();
   spout.sendTexture();
+
+  if (countForJSON > 0) {
+    for (int i = 0; i < jsonPCs.size(); i++) {
+      jsonPCs.get(i).cellIndex += 1;
+      jsonPCs.get(i).notifyChange();
+      if ( jsonPCs.get(i).cellIndex>17) {
+        jsonPCs.remove(i);
+        i--;
+      }
+    }
+    jsonPCs.add(new JSONPointCloud((countForJSON-1) + ".json", 0, colors));
+    countForJSON = -1;
+    println(jsonPCs.size());
+    for (int i = 0; i < jsonPCs.size(); i++) {
+      print(jsonPCs.get(i).cellIndex+" ");
+    }
+    println();
+  }
 }
 
 PVector ZERO = new PVector(0, 0, 0);
 
 
 void oscEvent(OscMessage msg) {
-  print("### received an osc message.");
-  print(" addrpattern: "+msg.addrPattern());
-  println(" typetag: "+msg.typetag());
+  //print("### received an osc message.");
+  //print(" addrpattern: "+msg.addrPattern());
+  //println(" typetag: "+msg.typetag());
 
   if (msg.addrPattern().equals("/wind")) {
     PVector force = new PVector(
@@ -70,7 +98,7 @@ void oscEvent(OscMessage msg) {
       msg.get(1).floatValue(), 
       msg.get(2).floatValue()
       );
-    force.div(16);
+    force.div(20);
     PVector[] pvs = {force, ZERO};
     animator.setLerpFactorAcc(.3).setTargetAcc(pvs);
   } else if (msg.addrPattern().equals("/offset")) {
@@ -82,12 +110,25 @@ void oscEvent(OscMessage msg) {
     //println(arrow);
     PVector[] pvs = { arrow };
     animator.setLerpFactorAcc(.1).setTargetOffset(pvs);
+  } else if (msg.addrPattern().equals("/rotation")) {
+    PVector arrow = new PVector(
+      radians(msg.get(0).floatValue()), 
+      radians(-msg.get(1).floatValue()), 
+      radians(-msg.get(2).floatValue())
+      ); 
+    //println(arrow);
+    PVector[] pvs = { arrow, ZERO };
+    animator.setLerpFactorRotation(.05).setTargetRotation(pvs);
   } else if (msg.addrPattern().equals("/color")) {
     color[] newColor = new color[5];
     for (int i = 0; i < 5; i++) {
       newColor[i] = msg.get(i).intValue();
     }
     animator.setColorPalette(newColor);
+  } else if (msg.addrPattern().equals("/finish")) {
+    countForJSON = msg.get(0).intValue();
+  } else if (msg.addrPattern().equals("/animatorState")) {
+    animator.setAnimatorState(msg.get(0).intValue());
   }
 }
 

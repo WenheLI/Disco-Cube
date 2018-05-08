@@ -11,6 +11,8 @@ int thresholdMax;
 float monitorScale;
 int jointThreshold;
 
+boolean mapping;
+
 
 boolean pointCloud;
 boolean registeredColor;
@@ -97,6 +99,11 @@ void setupGui() {
     .setSize(sliderW, sliderH)
     .setRange(1, 10)
     .setValue(6)
+    ;
+    cp5.addToggle("mapping")
+    .setPosition(startX, startY+spacing*25)
+    .setSize(sliderW, sliderH)
+    .setValue(false)
     ;
 
   cp5.setAutoDraw(false);

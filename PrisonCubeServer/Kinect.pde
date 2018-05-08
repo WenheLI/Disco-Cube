@@ -70,24 +70,24 @@ void checkSignal(KJoint[] joints) {
     oscP5.send(myMessage, myTarget);
   }
 
-  if (leftLegDist > 20) {
-    OscMessage myMessage = new OscMessage("/wind");
-    PVector legMovement = joints[KinectPV2.JointType_KneeLeft].getPosition().copy().sub(pLegLeftPos);
-    for (float it : legMovement.array()) {
-      myMessage.add(it);
-    }
-    oscP5.send(myMessage, myTarget);
-    //println("kneeLeft") ;
-  }
-  if (rightLegDist > 20) {
-    OscMessage myMessage = new OscMessage("/wind");
-    PVector legMovement = joints[KinectPV2.JointType_KneeRight].getPosition().copy().sub(pLegRightPos);
-    for (float it : legMovement.array()) {
-      myMessage.add(it);
-    }
-    oscP5.send(myMessage, myTarget);
-    //println("kneeRight") ;
-  }
+  //if (leftLegDist > 20) {
+  //  OscMessage myMessage = new OscMessage("/wind");
+  //  PVector legMovement = joints[KinectPV2.JointType_KneeLeft].getPosition().copy().sub(pLegLeftPos);
+  //  for (float it : legMovement.array()) {
+  //    myMessage.add(it);
+  //  }
+  //  oscP5.send(myMessage, myTarget);
+  //  //println("kneeLeft") ;
+  //}
+  //if (rightLegDist > 20) {
+  //  OscMessage myMessage = new OscMessage("/wind");
+  //  PVector legMovement = joints[KinectPV2.JointType_KneeRight].getPosition().copy().sub(pLegRightPos);
+  //  for (float it : legMovement.array()) {
+  //    myMessage.add(it);
+  //  }
+  //  oscP5.send(myMessage, myTarget);
+  //  //println("kneeRight") ;
+  //}
   pHandLeftPos = joints[KinectPV2.JointType_HandLeft].getPosition().copy();
   pHandRightPos = joints[KinectPV2.JointType_HandRight].getPosition().copy();
   pLegLeftPos = joints[KinectPV2.JointType_KneeLeft].getPosition().copy();
@@ -111,6 +111,7 @@ void checkFace() {
       
       if (jsonState==1) {
         if (abs(pitch)> 40 || abs(yaw)>40 ||abs(roll) > 30) {
+          background(255);
           newColor = new color[5];
           for (int j = 0; j < 5; j++) {
             newColor[j] = color(random(255), random(255), random(255));

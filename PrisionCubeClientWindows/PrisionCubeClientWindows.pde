@@ -45,7 +45,7 @@ void setup() {
   //file.handleEvents();
   //server = new SyphonServer(this, "Processing Syphon");
   spout = new Spout(this);
-  spout.createSender("Spout Processing");
+  spout.createSender("Client");
 }
 
 void draw() {

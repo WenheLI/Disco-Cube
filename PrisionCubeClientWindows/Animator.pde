@@ -35,6 +35,7 @@ class Animator {
   float step = 0.01;
 
   private color[] colorPalette = {#ff00c1, #9600ff, #4900ff, #00b8ff, #00fff9};
+  private boolean colorJustChanged;
 
 
   Animator() {
@@ -99,6 +100,7 @@ class Animator {
   }
   Animator setColorPalette(color[] colorPalette) {
     if (colorPalette != null) this.colorPalette = colorPalette;
+    colorJustChanged = true;
     return this;
   }
 
@@ -180,5 +182,10 @@ class Animator {
       jsonPC.setRotation(nextRotation.copy());
       jsonPC.setPlaybackSpeed(2);
     }
+
+    if (colorJustChanged) {
+      background(255);
+      colorJustChanged = false;
+    }
   }
-} 
+}

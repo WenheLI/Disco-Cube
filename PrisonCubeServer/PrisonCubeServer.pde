@@ -1,15 +1,12 @@
-import beads.*;
-import org.jaudiolibs.beads.*;
-
 import KinectPV2.*;
 import KinectPV2.KJoint;
 import gab.opencv.*;
 import java.util.ArrayList;
 import oscP5.*;
 import netP5.*;
+import spout.*;
 
-
-
+Spout spout;
 KinectPV2 kinect;
 OpenCV opencv;
 
@@ -42,9 +39,11 @@ color[] newColor = {#ff00c1, #9600ff, #4900ff, #00b8ff, #00fff9};
 
 boolean isClick = false;
 
+
 void setup() {
   size(1000, 800, P3D);
-
+  spout = new Spout(this);
+  spout.createSender("Server");
   setupGui();
   setupKinect();
 
@@ -62,10 +61,11 @@ void setup() {
   oscP5 = new OscP5(this, 12000);
   myTarget = new NetAddress("127.0.0.1", 12001);
   resetStats();
+  soundSetup();
 }
-
 void draw() {
-  background(0);
+  if (mapping)background(255);
+  else background(0);
 
   kinect.generateFaceData();
 
@@ -121,6 +121,7 @@ void draw() {
   }
 
   ArrayList<KSkeleton> skeletonArray =  kinect.getSkeletonDepthMap();
+  ArrayList<Float> dists = new ArrayList();
   maxDist = -1;
   int skeletonIndex = -1;
   for (int i = 0; i < skeletonArray.size(); i++) {
@@ -134,11 +135,25 @@ void draw() {
         maxDist = dis;
         skeletonIndex = i;
       }
+      dists.add(dis);
     }
   }
   //println(maxDist + " " + skeletonIndex);
   //maxDisyt < 120 omit
   if (maxDist < jointThreshold) skeletonIndex = -1;
+  
+  //TODO: boundary of skeleton in Kinect?
+  
+  //else {
+  //  for (int m = 0; m < dists.size(); m++) {
+  //    if (m != skeletonIndex) {
+  //      if (abs(dists.get(m) - maxDist) < .0001) {
+          
+  //      }
+  //    }
+  //  }
+  //}
+
   if (skeletonIndex >= 0) {
     KSkeleton skeleton = (KSkeleton) skeletonArray.get(skeletonIndex);
     //if the skeleton is being tracked compute the skleton joints
@@ -151,10 +166,10 @@ void draw() {
       PVector head = joints[KinectPV2.JointType_Head].getPosition().copy();
       float leftHeadDist = head.y - leftHand.y;
       float rightHeadDist = head.y - rightHand.y;
-
-      if ( (leftHeadDist < 30)&& (leftHeadDist > 1) ||(rightHeadDist > 1) && (rightHeadDist < 30)) {
+      text(handHeadCounter, 300, 200);
+      if ( (leftHeadDist < 40)&& (leftHeadDist > 1) ||(rightHeadDist > 1) && (rightHeadDist < 40)) {
         handHeadCounter ++;
-        if (handHeadCounter > 80) {
+        if (handHeadCounter > 50) {
           background(255, 255, 0);
           if (isClick && startPoint > 300) {
             isClick = !isClick;
@@ -184,7 +199,7 @@ void draw() {
     absentCount ++;
     if (absentCount>60) isClick = !isClick;
   }
-  text(absentCount, 500, 500);
+  //text(absentCount, 500, 500);
   checkFace();
 
   //json recording
@@ -210,9 +225,11 @@ void draw() {
   oscP5.send(stateMsg, myTarget);
 
   indexes.clear();
+  addSoundParticle();
   drawParticles();
 
   if (guiToggle) drawGui();
+  spout.sendTexture();
 }
 
 void drawParticles() {

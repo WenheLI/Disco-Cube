@@ -1,11 +1,15 @@
-# Lead-Follow
+# Disco Cube
 Kinetic Interfaces Spring 2018 Final@NYU Shanghai
+## Description:
 
-## Brief
+Disco Cube is a <strong>dancing visualization</strong> platform that shares old users' dance while the current user is dancing in a <strong>kinetic</strong> way. All the motions are presented in a flexible point cloud particle system. The motion of the current user will take partial control over the recorded old users' motion, which creates a leading and following experience.
 
-### This is a story of a leader in the dance becomes a follower in the end.
+<b>Collaborators: </b> [Eric Li](https://github.com/WenheLI), [Mars Zhao](https://github.com/yz3440)
 
-**Lead / Follow** is a dancing-like interactive experience. It is motion tracking platform where the current user’s motion will take leads on the previous users’ motions and will be recorded to follow future users’ motions.
+<strong>Demo Video:</strong>
+
+[embed]https://www.youtube.com/watch?v=t6FF6rHgIzk&amp;feature=youtu.be[/embed]
+
 
 ## Experience
 

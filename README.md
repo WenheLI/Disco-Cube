@@ -8,7 +8,20 @@ Disco Cube is a <strong>dancing visualization</strong> platform that shares old 
 
 <strong>Demo Video:</strong>
 
-[embed]https://www.youtube.com/watch?v=t6FF6rHgIzk&amp;feature=youtu.be[/embed]
+[![Video](https://img.youtube.com/vi/t6FF6rHgIzk/0.jpg)](https://www.youtube.com/watch?v=t6FF6rHgIzk&amp;feature=youtu.be)
+
+## Technologies & Materials:
+
+- Processing and Libraries
+  - Minim (for audio visualization)
+  - KinectPV2 (for utilizing Kinect skeleton tracking)
+  - oscP5 (for transferring gestures between server and client)
+  - Spout/Syphon (for streaming to Madmapper)
+- Kinect SDK for Windows
+- Madmapper (for projection mapping)
+- Three projectors
+- One wood piece as the projection screen (made from three IDEA Lack side table)
+- One powerful computer running Windows
 
 
 ## Experience
